@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN pwd
-RUN find . -type f | sort
+RUN echo "=== CURRENT DIR ===" && pwd
+RUN echo "=== FILES ===" && find . -maxdepth 3 -type f | sort
 
 RUN mvn -f ocs-portal-base/pom.xml clean install -DskipTests
