@@ -1,0 +1,85 @@
+when:
+  event:
+    - push
+    - manual
+  branch:
+    - main
+  commit:
+    message:
+      exclude:
+        - '\[skip ci\]'
+        - '\[ci skip\]'
+        - '\[no ci\]'
+steps:
+  - name: build-app
+    image: maven:3.9.9-eclipse-temurin-21
+    environment:
+      MAVEN_OPTS: "-Dmaven.repo.local=/root/.m2/repository"
+      GIT_BASE_URL:
+        from_secret: GIT_BASE_URL
+      GIT_USERNAME:
+        from_secret: GIT_USERNAME
+      GIT_TOKEN:
+        from_secret: GIT_TOKEN
+      GIT_ORGANIZATION:
+        from_secret: GIT_ORGANIZATION
+    volumes:
+      - m2-cache:/root/.m2
+    commands:
+      - apt-get update && apt-get install -y git
+      - echo "=== CLONE PORTAL BASE ==="
+      - git clone -b development --single-branch https://$${GIT_USERNAME}:$${GIT_TOKEN}@$${GIT_BASE_URL}/$${GIT_ORGANIZATION}/ocs-portal-base.git
+      - echo "=== BUILD PORTAL BASE ==="
+      - cd ocs-portal-base
+      - mvn clean install -DskipTests
+      - echo "=== CHECK M2 REPOSITORY ==="
+      - ls -R /root/.m2/repository/com/sts/sinorita/
+      - find /root/.m2/repository -name "*ocs-portal-base*"
+      - echo "=== VERIFY ARTIFACT ==="
+      - ls -R /root/.m2/repository/com/sts
+      - echo "=== BUILD MAIN APPLICATION ==="
+      - cd ..
+      - mvn clean package -DskipTests
+  - name: docker-build
+    image: docker:24-cli
+    environment:
+      SPRING_PROFILES_ACTIVE:
+        from_secret: SPRING_PROFILE
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    commands:
+      - echo "=== BUILD DOCKER IMAGE ==="
+      - docker compose down --remove-orphans || true
+      - export SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE
+      - docker compose -p sinorita up -d --build
+    depends_on:
+      - build-app
+---
+when:
+  event:
+    - manual
+  branch:
+    - main
+steps:
+  - name: approval-gate
+    image: alpine
+    commands:
+      - echo "======================================="
+      - echo "BUILD SUCCESS"
+      - echo "WAITING MANUAL DEPLOY APPROVAL"
+      - echo "======================================="
+  - name: deploy-production
+    image: docker:24-cli
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      DOCKER_PROJECT:
+        from_secret: DOCKER_PROJECT
+    commands:
+      - echo "=== STOP OLD CONTAINER ==="
+      - docker compose -p ${DOCKER_PROJECT} down --remove-orphans || true
+      - echo "=== START NEW CONTAINER ==="
+      - docker compose -p ${DOCKER_PROJECT} up -d --build
+      - echo "=== DEPLOY SUCCESS ==="
+    depends_on:
+      - approval-gate

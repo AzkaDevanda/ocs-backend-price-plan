@@ -1,0 +1,29 @@
+#This is compose to up local environtment
+#To run required docker-compose
+# docker-compose up -d
+#After run above syntax run below
+# docker network connect bridge jboss && docker network connect bridge phalcon
+services:
+
+  ocs-svc-role:
+    build: .
+    image: ocs-svc-role:latest
+    container_name: ocs-svc-role-container
+    environment:
+      - CONTAINER_ENV=local
+    ports:
+      - "8082:8082"
+    mem_limit: 768m
+    memswap_limit: 768m
+    mem_reservation: 512m
+    cpus: "0.50"
+    networks:
+      - private
+    tty: true
+
+networks:
+  bridge:
+    external:
+      name: bridge
+  private:
+    external: false

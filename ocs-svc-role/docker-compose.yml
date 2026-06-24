@@ -1,0 +1,43 @@
+services:
+
+  ocs-svc-role:
+    build: .
+    image: ocs-svc-role:latest
+    container_name: ocs-svc-role-container
+    environment:
+      - CONTAINER_ENV=local
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-}
+      - LOG_PATH=${LOG_PATH:-/apps/logs}
+      - LOG_RETENTION_DAYS=${LOG_RETENTION_DAYS:-180}
+      - LOG_MAX_TOTAL_SIZE=${LOG_MAX_TOTAL_SIZE:-10GB}
+      - LOG_MAX_FILE_SIZE=${LOG_MAX_FILE_SIZE:-100MB}
+      # - REQUEST_LOGGING_ENABLED: "true" # "true" | "false"
+      # - SQL_LOGGING_ENABLED: "true" # "true" | "false"
+      # - SQL_LOGGING_LEVEL: INFO # INFO | OFF
+    ports:
+      - "8082:8082"
+    volumes:
+      - ocs-svc-role-logs:/apps/logs
+    mem_limit: 768m
+    memswap_limit: 768m
+    mem_reservation: 512m
+    cpus: "0.50"
+    networks:
+      - private
+    tty: true
+    restart: unless-stopped
+
+networks:
+  bridge:
+    name: bridge
+    external: true
+  private:
+    external: false
+    # driver: bridge
+    # ipam:
+    #   config:
+    #     - subnet: 172.30.0.0/24
+
+volumes:
+  ocs-svc-role-logs:
+    name: ocs-svc-role-logs

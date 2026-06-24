@@ -1,0 +1,28 @@
+package com.sts.sinorita.svc.role.controller.apps;
+
+import com.sts.sinorita.svc.role.dto.request.log.LogDto;
+import com.sts.sinorita.svc.role.service.roles.LogService;
+import com.sts.sinorita.svc.role.utils.LogEvent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("api/logger")
+public class AppsController {
+
+    @Autowired
+    LogService logService;
+
+    @PostMapping(value = "save")
+    public ResponseEntity<String> doSaveLogger(@RequestBody LogDto logDto){
+        LogEvent logEvent = LogEvent.getLogEvent(logDto.getEventCode());
+            logService.addAuthLog(logEvent,logDto.getComments(),logDto.getIsSuccess());
+            return ResponseEntity.status(HttpStatus.OK).body("success");
+    }
+
+}

@@ -1,0 +1,17 @@
+# Java build output
+/target/
+build/
+
+# IntelliJ IDEA project files
+.idea/
+*.iml
+*.iws
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# ================= LOGS =================
+logs/
+*.log
+*.log.*

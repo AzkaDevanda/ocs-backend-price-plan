@@ -1,0 +1,41 @@
+when:
+  event:
+    - push
+    - manual
+  branch:
+    - main
+  commit:
+    message:
+      exclude:
+        - '\[skip ci\]'
+        - '\[ci skip\]'
+        - '\[no ci\]'
+steps:
+  - name: build-jar
+    image: maven:3.9.9-eclipse-temurin-21
+    commands:
+      - git clone -b development --single-branch https://LucasPurnama:65a50ff210d0326016446179db1b2b10f012ba23@git.shiblysolution.id/DEV_OCS/ocs-portal-base.git
+      - cd ./ocs-portal-base/
+      - mvn clean install -DskipTests|| echo 'Failed to build ocs-base'
+      - cd ..
+      - git clone -b development --single-branch https://LucasPurnama:65a50ff210d0326016446179db1b2b10f012ba23@git.shiblysolution.id/DEV_OCS/ocs-portal-service.git
+      - cd ./ocs-portal-service/
+      - mvn clean install -DskipTests || echo 'Failed to build ocs-service'
+      - cd ..
+      - mvn clean install || echo 'Build test Failed'
+
+  - name: cleanup
+    image: docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    commands:
+      - docker-compose down --rmi all --volumes --remove-orphans || true
+    depends_on: [build-jar]
+
+  - name: compose-up
+    image: docker:24-cli
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    commands:
+      - docker-compose -p sinorita up -d --build
+    depends_on: [build-jar]

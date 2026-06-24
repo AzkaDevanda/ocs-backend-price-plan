@@ -1,0 +1,118 @@
+when:
+  branch:
+    - main
+
+steps:
+  ######################################################################
+  # AUTO BUILD STAGE (Triggered by mirror push)
+  ######################################################################
+  - name: clone-dependencies
+    image: alpine/git
+    environment:
+      GIT_BASE_URL:
+        from_secret: GIT_BASE_URL
+      GIT_USERNAME:
+        from_secret: GIT_USERNAME
+      GIT_TOKEN:
+        from_secret: GIT_TOKEN
+      GIT_ORGANIZATION:
+        from_secret: GIT_ORGANIZATION
+    commands:
+      - echo "=== CLONE DEPENDENCY REPOSITORIES ==="
+      - git clone -b development --single-branch https://$${GIT_USERNAME}:$${GIT_TOKEN}@$${GIT_BASE_URL}/$${GIT_ORGANIZATION}/ocs-portal-base.git
+      # - git clone -b development --single-branch https://$${GIT_USERNAME}:$${GIT_TOKEN}@$${GIT_BASE_URL}/$${GIT_ORGANIZATION}/ocs-portal-service.git
+    when:
+      event:
+        - push
+
+  ######################################################################
+  # BUILD BASE MODULE
+  ######################################################################
+  - name: build-base
+    image: maven:3.9.9-eclipse-temurin-21
+    commands:
+      - cd ocs-portal-base
+      - mvn clean install -DskipTests
+    depends_on:
+      - clone-dependencies
+    when:
+      event:
+        - push
+
+  ######################################################################
+  # BUILD SERVICE MODULE
+  ######################################################################
+  # - name: build-service
+  #   image: maven:3.9.9-eclipse-temurin-21
+  #   commands:
+  #     - cd ocs-portal-service
+  #     - mvn clean install -DskipTests
+  #   depends_on:
+  #     - build-base
+  #   when:
+  #     event:
+  #       - push
+
+  ######################################################################
+  # BUILD MAIN APPLICATION
+  ######################################################################
+  - name: build-main-app
+    image: maven:3.9.9-eclipse-temurin-21
+    commands:
+      - mvn clean package -DskipTests
+    depends_on:
+      - build-base
+    when:
+      event:
+        - push
+
+  ######################################################################
+  # BUILD DOCKER IMAGE
+  ######################################################################
+  - name: docker-build
+    image: docker:24-cli
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    commands:
+      - docker compose build
+    depends_on:
+      - build-main-app
+    when:
+      event:
+        - push
+
+  ######################################################################
+  # WAITING APPROVAL STAGE
+  ######################################################################
+  - name: waiting-manual-approval
+    image: alpine
+    commands:
+      - echo "================================================="
+      - echo "BUILD SUCCESS"
+      - echo "WAITING MANUAL APPROVAL FOR PRODUCTION DEPLOY"
+      - echo "================================================="
+    depends_on:
+      - docker-build
+    when:
+      event:
+        - push
+
+  ######################################################################
+  # MANUAL DEPLOY PRODUCTION
+  ######################################################################
+  - name: deploy-production
+    image: docker:24-cli
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      DOCKER_PROJECT:
+        from_secret: DOCKER_PROJECT
+    commands:
+      - echo "=== STOP OLD CONTAINER ==="
+      - docker compose -p ${DOCKER_PROJECT} down --remove-orphans || true
+      - echo "=== START NEW CONTAINER ==="
+      - docker compose -p ${DOCKER_PROJECT} up -d --build
+      - echo "=== DEPLOY SUCCESS ==="
+    when:
+      event:
+        - manual
