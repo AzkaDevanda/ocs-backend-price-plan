@@ -4,13 +4,9 @@ WORKDIR /app
 
 COPY . .
 
-RUN echo "=== CURRENT DIR ===" && pwd
-RUN echo "=== FILES ==="
-RUN find . -maxdepth 3 -type f | sort
-
 RUN mvn -f ocs-portal-base/pom.xml clean install -DskipTests
 RUN mvn -f ocs-portal-service/pom.xml clean install -DskipTests
-
+RUN mvn -f ocs-svc-role/pom.xml clean package -DskipTests
 
 FROM eclipse-temurin:21-jre-jammy
 
