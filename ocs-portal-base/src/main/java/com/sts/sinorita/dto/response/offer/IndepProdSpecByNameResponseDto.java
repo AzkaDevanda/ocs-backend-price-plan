@@ -1,0 +1,12 @@
+package com.sts.sinorita.dto.response.offer;
+
+import lombok.Builder;
+import lombok.Data;
+
+@Data
+@Builder
+public class IndepProdSpecByNameResponseDto {
+    private Integer offerId;
+    private String offerName;
+    private Integer offerCatgId;
+}

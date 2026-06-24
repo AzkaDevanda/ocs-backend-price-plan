@@ -1,0 +1,18 @@
+when:
+  branch: development
+  event: push
+
+steps:
+  trigger-ocs-web-api:
+    image: curlimages/curl
+    environment:
+      WOODPECKER_SERVER:
+        from_secret: WOODPECKER_SERVER
+      WOODPECKER_TOKEN:
+        from_secret: WOODPECKER_TOKEN
+    commands:
+      - >
+        curl -X POST "$WOODPECKER_SERVER/api/repos/DEV_OCS/ocs-web-api/builds" \
+        -H "Authorization: Bearer $WOODPECKER_TOKEN" \
+        -H "Content-Type: application/json" \
+        -d '{"branch":"development", "event":"push"}'

@@ -1,0 +1,34 @@
+services:
+  docker-ocs-web-api:
+    build: .
+    image: docker-ocs-web-api:latest
+    container_name: docker-ocs-web-api-container
+    environment:
+      - CONTAINER_ENV=local
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-}
+      - LOG_PATH=/apps/logs
+      - LOG_RETENTION_DAYS=180
+      - LOG_MAX_TOTAL_SIZE=10GB
+      - LOG_MAX_FILE_SIZE=100MB
+      # - REQUEST_LOGGING_ENABLED: "true" # "true" | "false"
+      # - SQL_LOGGING_ENABLED: "true" # "true" | "false"
+      # - SQL_LOGGING_LEVEL: INFO # INFO | OFF
+    volumes:
+      - ocs-svc-price-plan-logs:/apps/logs
+    ports:
+      - "8080:8080"
+    mem_limit: 768m
+    memswap_limit: 768m
+    mem_reservation: 512m
+    cpus: "0.50"
+    restart: unless-stopped
+    tty: true
+    networks:
+      - private
+networks:
+  private:
+    driver: bridge
+
+volumes:
+  ocs-svc-price-plan-logs:
+    name: ocs-svc-price-plan-logs

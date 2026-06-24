@@ -1,0 +1,81 @@
+package com.sts.sinorita.controller.priceplan;
+
+
+import com.google.gson.Gson;
+import com.sts.sinorita.dto.request.*;
+import com.sts.sinorita.dto.response.BaseResponseDto;
+import com.sts.sinorita.dto.response.CustomeResponse;
+import com.sts.sinorita.priceplan.PricePlanVerService;
+import com.sts.sinorita.priceplan.PriceService;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+@Slf4j
+@RestController
+@RequestMapping("api/price-version")
+@Tag(name = "PriceVersion")
+public class PricePlanVerController {
+    @Autowired
+    private PricePlanVerService pricePlanVerService;
+    @Autowired
+    private PriceService priceService;
+
+    @GetMapping(value = "reattr-price/list")
+    public ResponseEntity<CustomeResponse> listReAttrForPrice() {
+        return pricePlanVerService.listReAttrForPrice();
+    }
+
+//    @GetMapping(value = "listForUpdate/{id}")
+//    public ResponseEntity<BaseResponseDto> listForUpdate(@PathVariable Long id) {
+//        return ResponseEntity.ok(pricePlanVerService.getPriceDetailById(id));
+//    }
+
+    @GetMapping({"/{ratePlanId}"})
+    public ResponseEntity<BaseResponseDto> getPricePlanVer(@PathVariable Integer ratePlanId) {
+//        log.info("::Request createPricePlan :: {} ",new Gson().toJson(pricePlanRequestDto));
+        return ResponseEntity.ok(pricePlanVerService.listPriceVerByRatePlan(ratePlanId));
+    }
+
+    @PutMapping("/update/{priceVerId}")
+    public ResponseEntity<CustomeResponse> updatePricePlanVer(@Schema(description = "ex : priceVerId (11516)") @PathVariable Integer priceVerId, @RequestBody UpdatePriceVerDto dto) {
+        return pricePlanVerService.updatePriceVer(priceVerId, dto);
+    }
+
+//    @DeleteMapping({"/delete/{priceId}"})
+//    public ResponseEntity<BaseResponseDto> deletePricePlanVer(@PathVariable Long priceId) {
+////        log.info("::Request deletePricePlanVer :: {} ",new Gson().toJson(priceVerId));
+//        BaseResponseDto response = pricePlanVerService.deletePrice(priceId);
+////        log.info("::Response deletePricePlanVer :: {} ",new Gson().toJson(response));
+//        return ResponseEntity.ok(response);
+//    }
+
+    // TODO : service masih error
+//    @PostMapping("/share")
+//    public ResponseEntity<BaseResponseDto> sharePricePlan(@RequestBody SharePricePlanRequestDTO sharedPricePlanVerId) {
+//        log.info("::Request sharePricePlanVer :: {} ",new Gson().toJson(sharedPricePlanVerId));
+//        return ResponseEntity.ok(pricePlanVerService.sharePricePlanVer(sharedPricePlanVerId));
+//    }
+
+
+//    @PostMapping("/expression-price/create")
+//    public ResponseEntity<BaseResponseDto> addExpressionPrice(@Validated @RequestBody ExpressionPriceRequest dto){
+//        return ResponseEntity.ok(pricePlanVerService.addExpressionPrice(dto));
+//    }
+
+    @DeleteMapping("/delete/{priceVerId}")
+    public ResponseEntity<BaseResponseDto> deletePriceVer(@PathVariable Integer priceVerId){
+        return ResponseEntity.ok(pricePlanVerService.deletePriceVer(priceVerId));
+    }
+
+    @DeleteMapping("/delete/acm/{priceId}/{priceVerId}")
+    public ResponseEntity<CustomeResponse> deletePriceVerAcm(@PathVariable Integer priceId, @PathVariable Integer priceVerId){
+        return priceService.deleteAcm(priceId,priceVerId);
+    }
+
+}

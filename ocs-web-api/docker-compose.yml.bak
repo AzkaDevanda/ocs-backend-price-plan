@@ -1,0 +1,27 @@
+#This is compose to up local environtment
+#To run required docker-compose
+# docker-compose up -d
+#After run above syntax run below
+# docker network connect bridge jboss && docker network connect bridge phalcon
+version: "3"
+
+services:
+
+  docker-ocs-web-api:
+     build: .
+     image: docker-ocs-web-api:latest
+     container_name: docker-ocs-web-api-container
+     environment:
+       - CONTAINER_ENV=local
+     ports:
+       - "8080:8080"
+     networks:
+       - private
+     tty: true
+
+networks:
+  bridge:
+    external:
+      name: bridge
+  private:
+    external: false

@@ -1,0 +1,18 @@
+#FROM openjdk:17-oracle
+#FROM openjdk:21-jdk-slim
+FROM eclipse-temurin:21-jdk-jammy
+
+USER root:root
+
+RUN apt-get update && apt-get install -y python3
+
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} /apps/ocs-microservice-0.0.1-SNAPSHOT.jar
+
+RUN mkdir -p /apps/resources
+COPY src/main/resources/ /apps/resources/
+#RUN chmod -R 777 /apps/resources
+
+WORKDIR /apps
+
+ENTRYPOINT ["java","-jar","/apps/ocs-microservice-0.0.1-SNAPSHOT.jar"]
