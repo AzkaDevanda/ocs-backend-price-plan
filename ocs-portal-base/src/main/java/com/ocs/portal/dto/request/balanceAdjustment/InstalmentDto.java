@@ -1,0 +1,10 @@
+package com.ocs.portal.dto.request.balanceAdjustment;
+
+import lombok.Data;
+
+@Data
+public class InstalmentDto {
+  public Long instlmentId;
+
+  public Long acctItemId;
+}
