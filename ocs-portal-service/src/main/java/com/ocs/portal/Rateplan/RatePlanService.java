@@ -1,21 +1,21 @@
-package com.ocs.portal.priceplan;
+package com.ocs.portal.Rateplan;
 
 import com.ocs.portal.ValidationService;
 import com.ocs.portal.common.MessageService;
 import com.ocs.portal.constant.HttpStatusConstant;
 import com.ocs.portal.dto.request.*;
 import com.ocs.portal.dto.request.priceplan.*;
-import com.ocs.portal.entity.*;
-import com.ocs.portal.repository.*;
 import com.ocs.portal.dto.response.BaseResponseDto;
 import com.ocs.portal.dto.response.CustomeResponse;
 import com.ocs.portal.dto.response.priceplan.ZoneMapResponse;
+import com.ocs.portal.entity.*;
 import com.ocs.portal.enums.EnumRC;
 import com.ocs.portal.mapper.pricePlan.rateplan.QryRatePlanMapper;
 import com.ocs.portal.mapper.pricePlan.rateplan.QryRatePlanZoneAndMappingUnitMapper;
 import com.ocs.portal.mapper.pricePlan.rateplan.QryRatePlanZoneMapper;
 import com.ocs.portal.mapper.pricePlan.rateplan.ReservationRuleMapper;
 import com.ocs.portal.projection.pricePlan.rateplan.ModRePricePlanProjection;
+import com.ocs.portal.repository.*;
 import com.ocs.portal.util.StringUtil;
 import com.ocs.portal.validation.ValidationHandler;
 import org.jetbrains.annotations.NotNull;
@@ -134,15 +134,15 @@ public class RatePlanService {
         return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
     }
 
-    public ResponseEntity<CustomeResponse> qryScriptTemplate(Long scriptTempletId, String scriptTempletGroup, String usageType, Long spId){
-        var data = scriptTempletRepository.QryScriptTemplate(scriptTempletId, scriptTempletGroup, usageType, spId).stream().map(reservationRuleMapper::qryScriptTemplatedto).toList();
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
-    }
-
-    public ResponseEntity<CustomeResponse> qryRePricePlanByReIdAndOfferVerId(Long reId, Long offerVerId, Long spId){
-        var data = rePricePlanRepository.qryRePricePlanByReIdAndOfferVerId(reId, offerVerId, spId).stream().map(reservationRuleMapper::qryRePricePlanByReIdAndOfferVerIddto).toList();
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
-    }
+//    public ResponseEntity<CustomeResponse> qryScriptTemplate(Long scriptTempletId, String scriptTempletGroup, String usageType, Long spId){
+//        var data = scriptTempletRepository.QryScriptTemplate(scriptTempletId, scriptTempletGroup, usageType, spId).stream().map(reservationRuleMapper::qryScriptTemplatedto).toList();
+//        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
+//    }
+//
+//    public ResponseEntity<CustomeResponse> qryRePricePlanByReIdAndOfferVerId(Long reId, Long offerVerId, Long spId){
+//        var data = rePricePlanRepository.qryRePricePlanByReIdAndOfferVerId(reId, offerVerId, spId).stream().map(reservationRuleMapper::qryRePricePlanByReIdAndOfferVerIddto).toList();
+//        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
+//    }
 
     @Transactional
     public BaseResponseDto addRatePlan(RatePlanDto ratePlanDto) {
@@ -170,6 +170,7 @@ public class RatePlanService {
 //            logger.info("::: RE PRICE PLAN successfully saved into database ::");
 
             // INSERT RATE_PLAN
+            // builder set entity
             RatePlan ratePlan = RatePlan.builder()
                     .reId(ratePlanDto.getReId())
                     .offerVerId(ratePlanDto.getOfferVerId())
@@ -177,31 +178,30 @@ public class RatePlanService {
                     .ratePlanCode(ratePlanDto.getRatePlanCode())
                     .ratePlanType(ratePlanDto.getRatePlanType())
                     .remarks(ratePlanDto.getRemarks())
-                    .templateFlag(ratePlanDto.getTemplateFlag() != null ?
-                            (char) ("Y".equals(ratePlanDto.getTemplateFlag()) ? 'Y' : 'N') : 'N')
+                    .templateFlag(ratePlanDto.getTemplateFlag() != null ? (char) ("Y".equals(ratePlanDto.getTemplateFlag()) ? 'Y' : 'N') : 'N')
                     .spId(ratePlanDto.getSpId()).build();
             ratePlanRepository.save(ratePlan);
             logger.info("::: RATE PLAN successfully saved into database ::");
             Integer ratePlanId = ratePlan.getId();
 
-            // INSERT RATE_PLAN_CATALOG_ELEMENT
-            if (ratePlanDto.getCatalogId() != null) {
-                RatePlanCatalogElement ratePlanCatalogElement = new RatePlanCatalogElement();
-                ratePlanCatalogElement.setRatePlanId(ratePlanId);
-                ratePlanCatalogElement.setId(ratePlanDto.getCatalogId());
-                ratePlanCatalogElement.setSpId(ratePlanDto.getSpId());
-                ratePlanCatalogElementRepository.save(ratePlanCatalogElement);
-                logger.info("::: RATE PLAN CATALOG ELEMENT successfully saved into database ::");
-            }
-
-            // INSERT Rate Plan Zone
-            if (ratePlanDto.getRatePlanZones() != null && !ratePlanDto.getRatePlanZones().isEmpty()) {
-                for (EventFeatureRequest zoneDto : ratePlanDto.getRatePlanZones()) {
-                    RatePlanZone ratePlanZone = getRatePlanZone(zoneDto, ratePlanId);
-                    ratePlanZoneRepository.save(ratePlanZone);
-                    logger.info("::: RATE PLAN ZONE successfully saved into database ::");
-                }
-            }
+//            // INSERT RATE_PLAN_CATALOG_ELEMENT
+//            if (ratePlanDto.getCatalogId() != null) {
+//                RatePlanCatalogElement ratePlanCatalogElement = new RatePlanCatalogElement();
+//                ratePlanCatalogElement.setRatePlanId(ratePlanId);
+//                ratePlanCatalogElement.setId(ratePlanDto.getCatalogId());
+//                ratePlanCatalogElement.setSpId(ratePlanDto.getSpId());
+//                ratePlanCatalogElementRepository.save(ratePlanCatalogElement);
+//                logger.info("::: RATE PLAN CATALOG ELEMENT successfully saved into database ::");
+//            }
+//
+//            // INSERT Rate Plan Zone
+//            if (ratePlanDto.getRatePlanZones() != null && !ratePlanDto.getRatePlanZones().isEmpty()) {
+//                for (EventFeatureRequest zoneDto : ratePlanDto.getRatePlanZones()) {
+//                    RatePlanZone ratePlanZone = getRatePlanZone(zoneDto, ratePlanId);
+//                    ratePlanZoneRepository.save(ratePlanZone);
+//                    logger.info("::: RATE PLAN ZONE successfully saved into database ::");
+//                }
+//            }
 
             // INSERT RATE_PLAN_MAPPING
             RatePlanMappingId ratePlanMappingId = new RatePlanMappingId();
@@ -239,25 +239,24 @@ public class RatePlanService {
         ratePlanRepository.save(ratePlan);
 
 
-        // Update Rate Plan Zone
-        List<Mapping> listMapping = mappingRepository.selectMappingByRatePlanId(ratePlanId);
-
-        if (dto.getZoneFlag().equals('Y')) {
-            if (!listMapping.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(400, messageService.getMessage("S-PRD-01022"), null));
-            }
-
-            ratePlanZoneRepository.delRatePlanZoneByRatePlanId(ratePlanId);
-
-            if (dto.getRatePlanZones() != null && !dto.getRatePlanZones().isEmpty()) {
-                for (EventFeatureRequest zoneDto : dto.getRatePlanZones()) {
-                    RatePlanZone ratePlanZone = getRatePlanZone(zoneDto, ratePlanId);
-                    ratePlanZoneRepository.save(ratePlanZone);
-                    logger.info("::: RATE PLAN ZONE successfully saved into database ::");
-                }
-            }
-        }
-
+//        // Update Rate Plan Zone
+//        List<Mapping> listMapping = mappingRepository.selectMappingByRatePlanId(ratePlanId);
+//
+//        if (dto.getZoneFlag().equals('Y')) {
+//            if (!listMapping.isEmpty()) {
+//                return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(400, messageService.getMessage("S-PRD-01022"), null));
+//            }
+//
+//            ratePlanZoneRepository.delRatePlanZoneByRatePlanId(ratePlanId);
+//
+//            if (dto.getRatePlanZones() != null && !dto.getRatePlanZones().isEmpty()) {
+//                for (EventFeatureRequest zoneDto : dto.getRatePlanZones()) {
+//                    RatePlanZone ratePlanZone = getRatePlanZone(zoneDto, ratePlanId);
+//                    ratePlanZoneRepository.save(ratePlanZone);
+//                    logger.info("::: RATE PLAN ZONE successfully saved into database ::");
+//                }
+//            }
+//        }
 
         return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, ratePlan));
 
@@ -471,7 +470,7 @@ public class RatePlanService {
 
     public int delPriceParamByPriceIdAndParamId(Long priceId, Long paramId){
         if(priceId == null || priceId.longValue() == -1L){
-          return 0;
+            return 0;
         }
         int refValCnt = qryRefValueCntByPriceAndParam(priceId, paramId);
         int delCnt = 0;
@@ -799,7 +798,7 @@ public class RatePlanService {
             } else {
                 priceParamDto.setTableParamId(paramId);
             }
-           addPriceParam(priceParamDto);
+            addPriceParam(priceParamDto);
         }
     }
 
@@ -1085,7 +1084,7 @@ public class RatePlanService {
             logger.debug("the same RefValueToOfferVerDto exist. Exit without adding.");
             return;
         }
-         reservationRuleMapper.toEntityRefValueOfferVer(refValueToOfferVerDto);
+        reservationRuleMapper.toEntityRefValueOfferVer(refValueToOfferVerDto);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -1139,7 +1138,6 @@ public class RatePlanService {
         modScriptPage(modRePricePlanDto);
         return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
     }
-
 
 
 }

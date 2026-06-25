@@ -1,4 +1,4 @@
-package com.ocs.portal.priceplan;
+package com.ocs.portal.Price;
 
 import com.ocs.portal.common.MessageService;
 import com.ocs.portal.constant.HttpStatusConstant;
@@ -12,7 +12,6 @@ import com.ocs.portal.enums.EnumRC;
 import com.ocs.portal.mapper.pricePlan.price.PriceMapper;
 import com.ocs.portal.repository.*;
 import com.ocs.portal.validation.ValidationHandler;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-@Slf4j
 @Service
 public class PriceService {
 
@@ -67,7 +65,7 @@ public class PriceService {
     @Autowired
     PriceMapper priceMapper;
 
-    Logger  logger = LoggerFactory.getLogger(PriceService.class);
+    Logger logger = LoggerFactory.getLogger(PriceService.class);
 
     @Transactional
     public CustomeResponse modifyPricePriority(ModPricePriorityRequest modPricePriorityRequest) {
@@ -285,11 +283,11 @@ public class PriceService {
 
 
     public ResponseEntity<CustomeResponse> getPriceRating(Integer ratePlanId, Integer mappingId, Integer priceVerId, Long priceId,
-                                                              Long priceIdSelf, Integer spId, Integer parentPriceId, Integer srcPriceId, Character shareFlag){
+                                                          Long priceIdSelf, Integer spId, Integer parentPriceId, Integer srcPriceId, Character shareFlag){
         var data = priceRepository.findPricesByRatePlanId(ratePlanId, mappingId, priceVerId, priceId, priceIdSelf, spId, parentPriceId, srcPriceId, shareFlag)
-                                  .stream()
-                                  .map(priceMapper::toDto)
-                                  .toList();
+                .stream()
+                .map(priceMapper::toDto)
+                .toList();
 
 
         return ResponseEntity.status(HttpStatus.OK)

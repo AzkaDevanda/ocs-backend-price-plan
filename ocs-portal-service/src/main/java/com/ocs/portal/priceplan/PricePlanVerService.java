@@ -1,5 +1,6 @@
 package com.ocs.portal.priceplan;
 
+import com.ocs.portal.Rateplan.RatePlanService;
 import com.ocs.portal.common.MessageService;
 import com.ocs.portal.constant.HttpStatusConstant;
 import com.ocs.portal.dto.request.*;
@@ -222,41 +223,41 @@ public class PricePlanVerService {
       upRepository.save(up);
       logger.info("::: UP successfully saved into database ::");
 
-      List<TimeSpanUp> savedTimeSpan = new ArrayList<>();
+//      List<TimeSpanUp> savedTimeSpan = new ArrayList<>();
+//
+//      if (dto.getTimeSpanUp() != null && !dto.getTimeSpanUp().isEmpty()) {
+//        for (TimeSpanUpRequest timeSpanUpRequest : dto.getTimeSpanUp()) {
+//          TimeSpanUp timeSpanUp = createTimeSpanUp(timeSpanUpRequest, price.getId(), dto.getOfferVerId(), dto.getRatePlanId());
+//          TimeSpanUp savedTimeSpanUp = timeSpanUpRepository.save(timeSpanUp);
+//          savedTimeSpan.add(savedTimeSpanUp);
+//        }
+//        logger.info("::: TIME SPAN UP successfully saved into database ::");
+//      }
+//
+//      if (dto.getRankUp() != null && !dto.getRankUp().isEmpty()) {
+//        for (RankDto rankDto : dto.getRankUp()) {
+//          createRankUp(rankDto, price.getId(), dto.getOfferVerId(), dto.getRatePlanId(), savedTimeSpan);
+//        }
+//        logger.info("::: RANK UP successfully saved into database ::");
+//
+//      }
+//
+//      if (dto.getAccumulationPrice() != null && !dto.getAccumulationPrice().isEmpty()) {
+//        for (AcmUpDto acmUpDto : dto.getAccumulationPrice()) {
+//          createAcmUp(acmUpDto, price.getId(), dto.getOfferVerId(), dto.getRatePlanId(), savedTimeSpan);
+//        }
+//        logger.info("::: RANK UP successfully saved into database ::");
+//      }
+//
+//      if (dto.getAccumulationCalculation() != null && !dto.getAccumulationCalculation().isEmpty()) {
+//        for (AcmCalcDto acmCalcDto : dto.getAccumulationCalculation()) {
+//          createAcmCalc(acmCalcDto, price.getId(), dto.getOfferVerId(), dto.getRatePlanId(), savedTimeSpan);
+//        }
+//      }
 
-      if (dto.getTimeSpanUp() != null && !dto.getTimeSpanUp().isEmpty()) {
-        for (TimeSpanUpRequest timeSpanUpRequest : dto.getTimeSpanUp()) {
-          TimeSpanUp timeSpanUp = createTimeSpanUp(timeSpanUpRequest, price.getId(), dto.getOfferVerId(), dto.getRatePlanId());
-          TimeSpanUp savedTimeSpanUp = timeSpanUpRepository.save(timeSpanUp);
-          savedTimeSpan.add(savedTimeSpanUp);
-        }
-        logger.info("::: TIME SPAN UP successfully saved into database ::");
-      }
-
-      if (dto.getRankUp() != null && !dto.getRankUp().isEmpty()) {
-        for (RankDto rankDto : dto.getRankUp()) {
-          createRankUp(rankDto, price.getId(), dto.getOfferVerId(), dto.getRatePlanId(), savedTimeSpan);
-        }
-        logger.info("::: RANK UP successfully saved into database ::");
-
-      }
-
-      if (dto.getAccumulationPrice() != null && !dto.getAccumulationPrice().isEmpty()) {
-        for (AcmUpDto acmUpDto : dto.getAccumulationPrice()) {
-          createAcmUp(acmUpDto, price.getId(), dto.getOfferVerId(), dto.getRatePlanId(), savedTimeSpan);
-        }
-        logger.info("::: RANK UP successfully saved into database ::");
-      }
-
-      if (dto.getAccumulationCalculation() != null && !dto.getAccumulationCalculation().isEmpty()) {
-        for (AcmCalcDto acmCalcDto : dto.getAccumulationCalculation()) {
-          createAcmCalc(acmCalcDto, price.getId(), dto.getOfferVerId(), dto.getRatePlanId(), savedTimeSpan);
-        }
-      }
-
-      if (dto.getExpressionPrice() != null) {
-        createExpressionPriceUp(dto.getExpressionPrice(), price.getId().intValue(), reType);
-      }
+//      if (dto.getExpressionPrice() != null) {
+//        createExpressionPriceUp(dto.getExpressionPrice(), price.getId().intValue(), reType);
+//      }
 
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(400, e.getMessage(), null));

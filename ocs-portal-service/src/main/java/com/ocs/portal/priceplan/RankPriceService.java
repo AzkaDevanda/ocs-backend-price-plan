@@ -39,15 +39,6 @@ public class RankPriceService {
     AcmUpRepository acmUpRepository;
 
     @Autowired
-    CalculateRepository calculateRepository;
-
-    @Autowired
-    PriceTaxRepository priceTaxRepository;
-
-    @Autowired
-    TimeSpanUpRepository timeSpanUpRepository;
-
-    @Autowired
     RatableResourceRepository ratableResourceRepository;
 
     @Autowired
@@ -65,71 +56,6 @@ public class RankPriceService {
     @Autowired
     private OpRepository opRepository;
 
-//    private static RefValue getRefValueid(AcmCalcDto acmCalcDto) {
-//        RefValue refValue = new RefValue();
-//        Integer ratePlanId = refValue.getId();
-//
-//        refValue.setPriceId(Long.valueOf(acmCalcDto.getPriceId()));
-//        refValue.setRatePlanId(acmCalcDto.getRatePlanId());
-//        refValue.setOfferVerId(acmCalcDto.getOfferVerId());
-//        refValue.setValueString(String.valueOf(acmCalcDto.getResourceId()));
-//        refValue.setSpId(0);
-//        refValue.setRatePrecision('0');
-//        refValue.setRefValueType('5');
-//        refValue.setState(acmCalcDto.getState());
-//        refValue.setCreatedDate(acmCalcDto.getCreatedDate());
-//        refValue.setStateDate(acmCalcDto.getStateDate());
-//        refValue.setStaffId(acmCalcDto.getStaffId());
-//
-//        return refValue;
-//    }
-
-//    private static RefValue getRefValue(AcmUpDto acmUpDto) {
-
-    /// /        RefValue refValue = new RefValue();
-    /// /        Integer ratePlanId = refValue.getRatePlanId();
-    /// /        Integer inputRatePlanId = acmUpDto.getRatePlanId();
-    /// /
-    /// /        if ((ratePlanId == null || ratePlanId == -1) && inputRatePlanId != null && inputRatePlanId != -1) {
-    /// /            refValue.setRatePlanId(inputRatePlanId);
-    /// /        }
-    /// /
-    /// /        refValue.setPriceId(Long.valueOf(acmUpDto.getPriceId()));
-    /// /        refValue.setOfferVerId(acmUpDto.getOfferVerId());
-    /// /        refValue.setValueString(String.valueOf(acmUpDto.getPrice()));
-    /// /        ;
-    /// /        refValue.setSpId(0);
-    /// /        refValue.setRatePrecision('0');
-    /// /        refValue.setRefValueType('1');
-    /// /        refValue.setState(acmUpDto.getState());
-    /// /        refValue.setCreatedDate(LocalDate.now());
-    /// /
-    /// /        return refValue;
-    /// /    }
-
-//    public BaseResponseDto addRankUp(RankDto rankDto) {
-//        BaseResponseDto baseResponseDto = new BaseResponseDto();
-//        RefValue refValue = refValueRepository.selectRefValueByValueString(rankDto.getRefValue()).orElseThrow(() -> new ValidationHandler(EnumRC.DATA_NOT_FOUND.getMessage()));
-//        refValue.setPriceId(rankDto.getPriceId().longValue());
-//        Long inputRatePlanId = rankDto.getRatePlanId().longValue();
-//        if ((refValue.getRatePlanId() == null || refValue.getRatePlanId() == -1L) && inputRatePlanId != null && inputRatePlanId != -1L) {
-//            refValue.setRatePlanId(rankDto.getRatePlanId());
-//        }
-//        addRefValue(refValue);
-//        RankUp rankUp = new RankUp();
-//        rankUp.setUpId(rankUp.getUpId());
-//        rankUp.setTimeSpanUpId(rankDto.getTimeSpanUpId());
-//        rankUp.setSpId(0);
-//        rankUp.setRate(refValue.getId());
-//        rankUp.setOffset(rankDto.getRangeEffVal());
-//        rankUp.setDuration(rankDto.getRangeExpVal());
-//        rankUp.setRum(rankDto.getCalUnit().longValue());
-//        rankUp.setAdjustMethod(rankDto.getAdjustMethod());
-//        rankUpRepository.save(rankUp);
-//        baseResponseDto.setCode(EnumRC.SUCCESS.getRESPONSE_CODE().toString());
-//        baseResponseDto.setMessage(EnumRC.SUCCESS.getMessage());
-//        return baseResponseDto;
-//    }
     public BaseResponseDto getRankPriceByPriceId(Integer priceId) {
 
         BaseResponseDto baseResponseDto = new BaseResponseDto();
@@ -183,16 +109,6 @@ public class RankPriceService {
 
     }
 
-//    private void cascadeAddRefValueInFormula(RefValueFormula formula, Long ratePlanId, Long priceId) throws BaseAppException {
-//        if (formula != null) {
-//            for (RefValue refVal : formula.getAllLevelRefValueInFormula()) {
-//                refVal.setRatePlanId(ratePlanId);
-//                refVal.setPriceId(priceId);
-//                this.addRefValueDto(refVal);
-//            }
-//        }
-//    }
-
     public BaseResponseDto deleteRankPrice(Integer rankUpId) {
         BaseResponseDto baseResponseDto = new BaseResponseDto();
 
@@ -217,31 +133,7 @@ public class RankPriceService {
         }
     }
 
-//    public BaseResponseDto addAcmUp(AcmUpDto acmUpDto) {
-//        BaseResponseDto baseResponseDto = new BaseResponseDto();
-//
-//        RefValue refValue = getRefValue(acmUpDto);
-//        refValueRepository.save(refValue);
-//
-//        AcmUp acmUp = new AcmUp();
-//
-//        acmUp.setRefValueId(refValue.getId());
-//        acmUp.setSpId(0);
-//        acmUp.setTimeSpanUpId(acmUpDto.getTimeSpanUpId());
-//        acmUp.setRate(refValue.getId());
-//        acmUp.setUpId(acmUpDto.getPriceId());
-//        acmUp.setResourceId(acmUpDto.getResourceId());
-//        acmUp.setEffValue(acmUpDto.getRangeEffVal());
-//        acmUp.setExpValue(acmUpDto.getRangeExpVal());
-//        acmUp.setRum(acmUpDto.getCalUnit());
-//        acmUp.setAdjustMethod(acmUpDto.getAdjustMethod());
-//
-//        acmUpRepository.save(acmUp);
-//        baseResponseDto.setCode(EnumRC.SUCCESS.getRESPONSE_CODE().toString());
-//        baseResponseDto.setMessage(EnumRC.SUCCESS.getMessage());
-//        return baseResponseDto;
-//
-//    }
+
 
     public BaseResponseDto getListAcmPriceByPriceId(Integer priceId) {
         BaseResponseDto baseResponseDto = new BaseResponseDto();
@@ -309,25 +201,6 @@ public class RankPriceService {
         return baseResponseDto;
     }
 
-//    public BaseResponseDto addAcmCalc(AcmCalcDto acmCalcDto) {
-//        BaseResponseDto baseResponseDto = new BaseResponseDto();
-//        RefValue refValue = getRefValueid(acmCalcDto);
-//        refValueRepository.save(refValue);
-//
-//        AcmCalc acmCalcc = new AcmCalc();
-//
-//        acmCalcc.setRefValueId(refValue.getId());
-//        acmCalcc.setResourceId(acmCalcDto.getResourceId());
-//        acmCalcc.setUpId(acmCalcDto.getPriceId());
-//        acmCalcc.setRum(acmCalcDto.getCalcUnit().longValue());
-//        acmCalcc.setSpId(0);
-//        acmCalcc.setTimeSpanUpId(null);
-//
-//        acmCalcRepository.save(acmCalcc);
-//        baseResponseDto.setCode(EnumRC.SUCCESS.getRESPONSE_CODE().toString());
-//        baseResponseDto.setMessage(EnumRC.SUCCESS.getMessage());
-//        return baseResponseDto;
-//    }
 
     public BaseResponseDto getListAcmCalcByPriceId(Integer priceId) {
         BaseResponseDto baseResponseDto = new BaseResponseDto();
@@ -401,22 +274,6 @@ public class RankPriceService {
 
 
     }
-
-//        private void addAcmUpCalc(RankDto rankDto){
-//
-//                RefValue refValue = refValueRepository.selectRefValueByValueString(rankDto.getRefValue()).orElseThrow(() -> new ValidationHandler(EnumRC.DATA_NOT_FOUND.getMessage()));
-//                refValue.setPriceId(rankDto.getPriceId().longValue());
-//                Long inputRatePlanId = rankDto.getRatePlanId().longValue();
-//                if ((refValue.getRatePlanId() == null || refValue.getRatePlanId() == -1L) && inputRatePlanId != null && inputRatePlanId != -1L) {
-//                    refValue.setRatePlanId(rankDto.getRatePlanId());
-//                }
-//                AcmCalc calc = new AcmCalc();
-//                calc.setSpId(0);
-//                calc.setUpId(rankDto.getPriceId());
-//                calc.setRefValueId(refValue.getId());
-//                calc.setRum(rankDto.getCalUnit().longValue());
-//                calculateRepository.save(calc);
-//       }
 
     public BaseResponseDto getResource() {
         BaseResponseDto baseResponseDto = new BaseResponseDto();

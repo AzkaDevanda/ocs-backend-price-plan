@@ -72,13 +72,13 @@ public class PricePlanVerRequestDto {
 
     private String comments;
 
-    List<TimeSpanUpRequest> timeSpanUp;
+//    List<TimeSpanUpRequest> timeSpanUp;
+//
+//    List<RankDto> rankUp;
+//
+//    List<AcmUpDto> accumulationPrice;
+//
+//    List<AcmCalcDto> accumulationCalculation;
 
-    List<RankDto> rankUp;
-
-    List<AcmUpDto> accumulationPrice;
-
-    List<AcmCalcDto> accumulationCalculation;
-
-    ExpressionPriceRequest expressionPrice;
+//    ExpressionPriceRequest expressionPrice;
 }

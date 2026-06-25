@@ -42,18 +42,6 @@ public class UsageEventService {
   private OfferVerRepository offerVerRepository;
   @Autowired
   private RePpRecurringRepository rePpRecurringRepository;
-  @Autowired
-  private OfferRepository offerRepository;
-  @Autowired
-  private RatePlanRepository ratePlanRepository;
-  @Autowired
-  private RatePlanMappingRepository ratePlanMappingRepository;
-  @Autowired
-  private PriceVerRepository priceVerRepository;
-  @Autowired
-  private PriceRepository priceRepository;
-  @Autowired
-  private EventBenefitRepository eventBenefitRepository;
 
   public BaseResponseDto getALlUsageEvent (Character reType) {
     BaseResponseDto baseResponseDto = new BaseResponseDto();

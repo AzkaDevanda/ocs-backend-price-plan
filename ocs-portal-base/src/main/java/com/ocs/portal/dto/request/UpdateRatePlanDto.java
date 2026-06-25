@@ -17,6 +17,6 @@ public class UpdateRatePlanDto {
     private String remarks;
     private Character zoneFlag;
 
-    private List<EventFeatureRequest> ratePlanZones;
+//    private List<EventFeatureRequest> ratePlanZones;
 
 }

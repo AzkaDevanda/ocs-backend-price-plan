@@ -1,11 +1,10 @@
-package com.ocs.portal.controller.priceplan;
+package com.ocs.portal.controller.price;
 
-
+import com.ocs.portal.Price.PriceService;
 import com.ocs.portal.dto.request.UpdatePriceVerDto;
 import com.ocs.portal.dto.response.BaseResponseDto;
 import com.ocs.portal.dto.response.CustomeResponse;
 import com.ocs.portal.priceplan.PricePlanVerService;
-import com.ocs.portal.priceplan.PriceService;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("api/price-version")
 @Tag(name = "PriceVersion")
-public class PricePlanVerController {
+public class PriceVerController {
     @Autowired
     private PricePlanVerService pricePlanVerService;
     @Autowired
@@ -48,7 +47,7 @@ public class PricePlanVerController {
 //    public ResponseEntity<BaseResponseDto> deletePricePlanVer(@PathVariable Long priceId) {
 ////        log.info("::Request deletePricePlanVer :: {} ",new Gson().toJson(priceVerId));
 //        BaseResponseDto response = pricePlanVerService.deletePrice(priceId);
-////        log.info("::Response deletePricePlanVer :: {} ",new Gson().toJson(response));
+    ////        log.info("::Response deletePricePlanVer :: {} ",new Gson().toJson(response));
 //        return ResponseEntity.ok(response);
 //    }
 
