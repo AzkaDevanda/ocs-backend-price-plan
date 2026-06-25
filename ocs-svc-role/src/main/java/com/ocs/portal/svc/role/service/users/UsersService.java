@@ -243,14 +243,16 @@ public class UsersService {
         boolean fromDscm = StringUtils.isNotEmpty(user.getPwd());
 //        boolean needSendMessage = (!fromDscm && "true".equals(enableSend));
 //        if (needSendMessage) {
-        StringSanitizer.sanitize(user);
-        if ("false".equals(isDefaultPwd)) {
-            //generate pasword.
-            logger.warn("GENERATE DEF PWD PROCESS");
-            defaultPwd = generatePwd(user.getUserCode(), LogEvent.RESET_PASSWORD);
-            user.setPwd(defaultPwd);
-            sendAddUserMsg(user, defaultPwd);
+        String password = user.getPwd();
+
+        if (StringUtils.isBlank(password)) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Password wajib diisi"
+            );
         }
+        
+        // sendAddUserMsg(user, password);
 //        }
         if (!fromDscm && !"-1".equals(initialPwdExpireDays) && StringUtils.isNumeric(initialPwdExpireDays)) {
             LocalDateTime nowDate = LocalDateTime.now();
