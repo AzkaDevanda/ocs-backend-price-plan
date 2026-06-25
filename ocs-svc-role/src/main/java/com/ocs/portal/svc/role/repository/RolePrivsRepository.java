@@ -2,7 +2,6 @@ package com.ocs.portal.svc.role.repository;
 
 import com.ocs.portal.entity.BfmRolePriv;
 import com.ocs.portal.svc.role.projection.*;
-import com.sts.sinorita.svc.role.projection.*;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

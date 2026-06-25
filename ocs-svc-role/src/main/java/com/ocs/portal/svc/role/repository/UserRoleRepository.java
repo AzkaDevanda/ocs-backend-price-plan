@@ -2,7 +2,6 @@ package com.ocs.portal.svc.role.repository;
 
 import com.ocs.portal.entity.BfmUserRole;
 import com.ocs.portal.svc.role.projection.*;
-import com.sts.sinorita.svc.role.projection.*;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

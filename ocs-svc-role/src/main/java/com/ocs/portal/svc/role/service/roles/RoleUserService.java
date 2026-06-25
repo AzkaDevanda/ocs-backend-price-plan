@@ -14,7 +14,6 @@ import com.ocs.portal.svc.role.dto.response.ProdRolesDto;
 import com.ocs.portal.svc.role.dto.response.UserDto;
 import com.ocs.portal.svc.role.mapper.RoleMapper;
 import com.ocs.portal.svc.role.projection.*;
-import com.sts.sinorita.svc.role.projection.*;
 import com.ocs.portal.svc.role.repository.JobRoleRepository;
 import com.ocs.portal.svc.role.repository.UserRoleRepository;
 import com.ocs.portal.svc.role.utils.LocalDateAdapter;

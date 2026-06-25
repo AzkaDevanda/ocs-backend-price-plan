@@ -16,7 +16,6 @@ import com.ocs.portal.svc.role.dto.response.UserDto;
 import com.ocs.portal.svc.role.mapper.RoleMapper;
 import com.ocs.portal.svc.role.projection.UserRoleExtProjection;
 import com.ocs.portal.svc.role.repository.*;
-import com.sts.sinorita.svc.role.repository.*;
 import com.ocs.portal.svc.role.repository.custom.RolePortalCustomRepository;
 import com.ocs.portal.svc.role.utils.LogEvent;
 import com.ocs.portal.svc.role.utils.MessageUtil;

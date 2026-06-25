@@ -8,10 +8,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import jakarta.annotation.PostConstruct;
 
-@SpringBootApplication(scanBasePackages = { "com.sts.sinorita" })
-@EnableJpaRepositories(basePackages = { "com.sts.sinorita.auth.repository",
-		"com.sts.sinorita.repository", "com.sts.sinorita.storeProcedure",
-		"com.sts.sinorita.dto" })
+@SpringBootApplication(scanBasePackages = { "com.ocs.portal", "com.sinorita" })
+@EnableJpaRepositories(basePackages = {
+		"com.ocs.portal.auth.repository",
+		"com.ocs.portal.repository",
+		"com.ocs.portal.storeProcedure.impl" })
 public class OcsApplication {
 
 	@PostConstruct

@@ -32,7 +32,7 @@ public interface PricePlanTypeRepository extends JpaRepository<PricePlanType, Ch
 //            "WHERE pp.applyLevel = 'A' AND ppt.id IN (:param1,:param2)")
 //    List<PricePlanTypeDto> fetchPricePlanDataA(@Param("param1")Character param1, @Param("param2")Character param2);
 
-  @Query("SELECT new com.sts.sinorita.dto.request.PricePlanTypeDto(ppt.id, ppt.pricePlanTypeName) FROM PricePlanType ppt where ppt.id IN (:param1,:param2)")
+  @Query("SELECT new com.ocs.portal.dto.request.PricePlanTypeDto(ppt.id, ppt.pricePlanTypeName) FROM PricePlanType ppt where ppt.id IN (:param1,:param2)")
 //    @Query(value = "SELECT * FROM PRICE_PLAN_TYPE p WHERE p.PRICE_PLAN_TYPE IN ('2', '3')", nativeQuery = true)
 //    List<PricePlanType> findDefaultAndIndividual();
   List<PricePlanTypeDto> findDefaultAndIndividual (@Param("param1") Character param1, @Param("param2") Character param2);
