@@ -24,7 +24,6 @@ import com.ocs.portal.svc.role.dto.request.roles.RolePortalDto;
 import com.ocs.portal.svc.role.dto.response.PortalMenuDto;
 import com.ocs.portal.svc.role.dto.response.ProdRolesDto;
 import com.ocs.portal.svc.role.dto.response.RolePortalHisDto;
-import com.sts.sinorita.svc.role.dto.response.*;
 import com.ocs.portal.svc.role.mapper.BfmPortalMapper;
 import com.ocs.portal.svc.role.mapper.RoleMapper;
 import com.ocs.portal.svc.role.projection.RolePortalProjection;
