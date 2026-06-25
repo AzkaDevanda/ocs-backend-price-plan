@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface TimeSpanRepository extends JpaRepository<TimeSpan,Integer> {
-    @Query("SELECT new com.sts.sinorita.dto.request.TimeSpanNameDto(ts.timeSpanId, ts.timeSpanName) FROM TimeSpan ts")
+    @Query("SELECT new com.ocs.portal.dto.request.TimeSpanNameDto(ts.timeSpanId, ts.timeSpanName) FROM TimeSpan ts")
     List<TimeSpanNameDto> getTimeSpanName();
 }

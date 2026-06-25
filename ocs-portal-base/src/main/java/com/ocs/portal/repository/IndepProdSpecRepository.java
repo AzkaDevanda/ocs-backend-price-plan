@@ -107,7 +107,7 @@ public interface IndepProdSpecRepository extends JpaRepository<IndepProdSpec, Lo
     // List<OfferVerForSubsPlanDto> findOfferVerByOfferId(@Param("offerId") Integer
     // offerId);
 
-    @Query("SELECT new com.sts.sinorita.dto.request.offer.OfferVerForSubsPlanDto(o.id, o.seq, o.effDate, o.offerId) FROM OfferVer o WHERE o.offerId = :offerId")
+    @Query("SELECT new com.ocs.portal.dto.request.offer.OfferVerForSubsPlanDto(o.id, o.seq, o.effDate, o.offerId) FROM OfferVer o WHERE o.offerId = :offerId")
     List<OfferVerForSubsPlanDto> findOfferVerByOfferId(@Param("offerId") Integer offerId);
 
     @Query(value = "SELECT INDEP_PROD_SPEC_ID AS indepProdSpecId, SERV_TYPE AS servType, PAID_FLAG AS paidFlag, SP_ID AS spId FROM INDEP_PROD_SPEC WHERE INDEP_PROD_SPEC_ID = :indepProdSpecId", nativeQuery = true)

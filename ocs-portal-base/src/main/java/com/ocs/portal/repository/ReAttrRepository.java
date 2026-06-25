@@ -14,10 +14,10 @@ import java.util.List;
 
 @Repository
 public interface ReAttrRepository extends JpaRepository<ReAttr, Integer> {
-    @Query("SELECT new com.sts.sinorita.dto.request.ReAttrDto(r.id, r.reAttrName) FROM ReAttr r ORDER BY r.reAttrName ASC")
+    @Query("SELECT new com.ocs.portal.dto.request.ReAttrDto(r.id, r.reAttrName) FROM ReAttr r ORDER BY r.reAttrName ASC")
     List<ReAttrDto> findByReAttrName();
 
-    @Query("SELECT new com.sts.sinorita.dto.request.ReAttrListDto(a.id, a.reAttrName) " +
+    @Query("SELECT new com.ocs.portal.dto.request.ReAttrListDto(a.id, a.reAttrName) " +
             "FROM ReAttr a LEFT JOIN DefReAttr b ON a.id = b.reAttr " +
             "WHERE a.measurable = 'Y' " +
             "ORDER BY a.reAttrName")

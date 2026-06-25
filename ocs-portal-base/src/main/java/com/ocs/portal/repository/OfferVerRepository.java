@@ -65,7 +65,7 @@ public interface OfferVerRepository extends JpaRepository<OfferVer, Integer>, Of
 	@Query(value = "SELECT OFFER_VER_ID_SEQ.NEXTVAL FROM DUAL", nativeQuery = true)
 	Integer getNextOfferVerId();
 
-	@Query("SELECT new com.sts.sinorita.dto.response.offerver.OfferVerListResponse(o.id , ov.id , o.offerName, o.offerCode, null, null) FROM Offer o INNER JOIN OfferVer ov ON o.id  = ov.offerId")
+	@Query("SELECT new com.ocs.portal.dto.response.offerver.OfferVerListResponse(o.id , ov.id , o.offerName, o.offerCode, null, null) FROM Offer o INNER JOIN OfferVer ov ON o.id  = ov.offerId")
 	public List<OfferVerListResponse> findOfferVerListAndOffer();
 
 	// ======> Dev By Ramdhan <======
