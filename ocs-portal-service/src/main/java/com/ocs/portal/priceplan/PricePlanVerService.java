@@ -60,8 +60,6 @@ public class PricePlanVerService {
   @Autowired
   private RePricePlanRepository rePricePlanRepository;
   @Autowired
-  private DpRepository dpRepository;
-  @Autowired
   private AcmTriggerRepository acmTriggerRepository;
   @Autowired
   private BalTriggerRepository balTriggerRepository;
@@ -87,8 +85,6 @@ public class PricePlanVerService {
   private ScriptTempletRepository scriptTempletRepository;
   @Autowired
   private UpRepository upRepository;
-  @Autowired
-  private MappingUnitRepository mappingUnitRepository;
   @Autowired
   private ReRepository reRepository;
   @Autowired

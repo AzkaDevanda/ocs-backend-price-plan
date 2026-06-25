@@ -44,14 +44,6 @@ public class AcctItemTypeService {
 //  private final AcctItemTypeBindRepository acctItemTypeBindRepository;
 //  private final AcctItemTaxApplyRepository acctItemTaxApplyRepository;
   private final BalTypeRepository balTypeRepository;
-  private final DpRuleRepository dpRuleRepository;
-  private final RefDpRepository refDpRepository;
-  private final RefAcctItemTypeRepository refAcctItemTypeRepository;
-  private final PriceRepository priceRepository;
-  private final AdjustPrepareItemRepository adjustPrepareItemRepository;
-  private final OverduePlanItemRepository overduePlanItemRepository;
-  private final InstalmentTypeItemRepository instalmentTypeItemRepository;
-  private final GlAcctItemTypeRepository glAcctItemTypeRepository;
   private final GstTypeRepository gstTypeRepository;
 
   // ==========> MAPPER <==========
