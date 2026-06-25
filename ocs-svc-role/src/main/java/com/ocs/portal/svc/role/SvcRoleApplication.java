@@ -11,7 +11,7 @@ import java.util.TimeZone;
 
 @EnableCaching
 @SpringBootApplication
-@EntityScan(basePackages = {"com.sts.sinorita.entity","com.sts.sinorita.svc.role.auth.entity"})
+@EntityScan(basePackages = {"com.ocs.portal.entity","com.ocs.portal.svc.role.auth.entity"})
 @EnableAsync
 public class SvcRoleApplication {
 	
