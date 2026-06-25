@@ -20,9 +20,9 @@ public class AppsController {
 
     @PostMapping(value = "save")
     public ResponseEntity<String> doSaveLogger(@RequestBody LogDto logDto){
-        LogEvent logEvent = LogEvent.getLogEvent(logDto.getEventCode());
-            logService.addAuthLog(logEvent,logDto.getComments(),logDto.getIsSuccess());
-            return ResponseEntity.status(HttpStatus.OK).body("success");
+        LogEvent log = LogEvent.getLogEvent(logDto.getEventCode());
+        logService.addAuthLog(log,logDto.getComments(), logDto.getIsSuccess());
+        return ResponseEntity.status(HttpStatus.OK).body("succes");
     }
 
 }
