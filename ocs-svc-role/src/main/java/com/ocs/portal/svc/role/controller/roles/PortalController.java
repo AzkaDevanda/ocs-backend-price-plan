@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 @Tag(name = "Prod Portal Controller", description = "Portal Management APIs")
 @RestController
-@RequestMapping(value = "api/prod/portals")
+@RequestMapping(value = "api/portals")
 public class PortalController {
 
     Logger logger = LoggerFactory.getLogger(PortalController.class);
