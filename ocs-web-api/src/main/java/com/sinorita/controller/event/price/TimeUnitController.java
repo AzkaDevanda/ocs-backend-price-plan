@@ -1,7 +1,7 @@
 package com.sinorita.controller.event.price;
 
 import com.ocs.portal.dto.response.CustomeResponse;
-import com.ocs.portal.priceplan.PricePlanVerService;
+import com.ocs.portal.price.PricePlanVerService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

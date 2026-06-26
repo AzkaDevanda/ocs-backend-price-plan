@@ -2,7 +2,7 @@ package com.ocs.portal.controller.priceplan;
 
 
 import com.ocs.portal.dto.response.BaseResponseDto;
-import com.ocs.portal.priceplan.PricePlanVerService;
+import com.ocs.portal.price.PricePlanVerService;
 import com.ocs.portal.priceplan.RankPriceService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;

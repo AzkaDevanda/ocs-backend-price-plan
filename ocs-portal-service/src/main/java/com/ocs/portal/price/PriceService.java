@@ -1,4 +1,4 @@
-package com.ocs.portal.Price;
+package com.ocs.portal.price;
 
 import com.ocs.portal.common.MessageService;
 import com.ocs.portal.constant.HttpStatusConstant;

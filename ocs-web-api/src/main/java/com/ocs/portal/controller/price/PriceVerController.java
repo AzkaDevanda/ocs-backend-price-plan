@@ -1,10 +1,10 @@
 package com.ocs.portal.controller.price;
 
-import com.ocs.portal.Price.PriceService;
+import com.ocs.portal.price.PricePlanVerService;
+import com.ocs.portal.price.PriceService;
 import com.ocs.portal.dto.request.UpdatePriceVerDto;
 import com.ocs.portal.dto.response.BaseResponseDto;
 import com.ocs.portal.dto.response.CustomeResponse;
-import com.ocs.portal.priceplan.PricePlanVerService;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
