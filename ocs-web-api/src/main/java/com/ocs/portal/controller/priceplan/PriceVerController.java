@@ -1,4 +1,4 @@
-package com.ocs.portal.controller.price;
+package com.ocs.portal.controller.priceplan;
 
 import com.ocs.portal.price.PricePlanVerService;
 import com.ocs.portal.price.PriceService;
