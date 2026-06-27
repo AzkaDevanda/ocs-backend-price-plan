@@ -539,6 +539,7 @@ public class PricePlanVerService {
         return createSuccessResponse();
     }
 //1 price&benefit 8 nyimpen acct item type 5 resouce id
+// re -> eventl
 
     private RefValue createRefValueAcmPriceResourceId(InsertAccumulationPriceDto request, Long priceId, Acm acm,
                                                       boolean create) {

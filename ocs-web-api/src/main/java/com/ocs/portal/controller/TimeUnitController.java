@@ -1,4 +1,4 @@
-package com.sinorita.controller.event.price;
+package com.ocs.portal.controller;
 
 import com.ocs.portal.dto.response.CustomeResponse;
 import com.ocs.portal.price.PricePlanVerService;
