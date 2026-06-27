@@ -46,17 +46,6 @@ public class ProdUserController {
     @Autowired
     RoleService roleService;
 
-    @GetMapping(value = {"{userId}/roles"})
-    public ResponseEntity<CustomeResponse> getRoleListByUserId(@PathVariable Long userId) {
-        logger.info("getRoleListByUserId = " + userId);
-        return usersService.getRoleListByUserIdWithoutJob(userId);
-    }
-
-    @GetMapping(value = "getMessage/{code}")
-    public String getMessage(@PathVariable("code") String code) {
-        return MessageUtil.getMessage(code);
-    }
-
     @GetMapping(value = "list")
     public ResponseEntity<CustomeResponse> queryUserList(@ModelAttribute PagingRequestDto pagingRequestDto, @ModelAttribute UserReqParam user) {
         if (pagingRequestDto.getSortBy() == null){
@@ -90,55 +79,4 @@ public class ProdUserController {
         return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, "success", null));
     }
 
-    @PatchMapping(value = {"{userId}/lock"})
-    public ResponseEntity<CustomeResponse> lockUser(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Integer userId, @RequestParam(required = false) String opReason) {
-//        String token = authorizationHeader.startsWith("Bearer ")
-//                ? authorizationHeader.substring(7)
-//                : authorizationHeader;
-
-        return usersService.lockUser("", userId, opReason);
-    }
-
-    @PatchMapping(value = {"{userId}/unLock"})
-    public ResponseEntity<CustomeResponse> unLockUser(@PathVariable Integer userId, @RequestParam(required = false) String opReason) {
-        return usersService.unLock(userId, opReason);
-    }
-
-
-    @PatchMapping(value = {"{userId}/disable"})
-    public ResponseEntity<CustomeResponse> disableUser(@PathVariable Integer userId, @RequestParam(required = false) String opReason) {
-        return usersService.disableUser(userId, opReason);
-    }
-
-    @PatchMapping(value = {"{userId}/enable"})
-    public ResponseEntity<CustomeResponse> enableUser(@PathVariable Integer userId, @RequestParam(required = false) String opReason) {
-        return usersService.enableUser(userId, opReason);
-    }
-
-    @DeleteMapping(value = {"/{userId}/remove"})
-    public Object removeUser(@PathVariable Long userId) {
-        return usersService.removeUser(userId, "");
-    }
-
-    @PostMapping(value = "{userId}/roles/new")
-    public ResponseEntity<CustomeResponse> grantRoleToUserNew(@PathVariable Long userId, @RequestBody @Validated List<UserRoleDto> dto) {
-        logger.info("Request grantRoleToUserNew : {}", gson.toJson(dto));
-        return roleService.grantRoleToUserNews(userId, dto);
-    }
-
-    @DeleteMapping(value = {"{userId}/roles/new"})
-    public ResponseEntity<BaseResponseDto> degrantRoleFromUserNew(@PathVariable Long userId, @RequestBody List<UserRoleDto> roleList) {
-        logger.info("Request degrantRoleFromUserNew {}", gson.toJson(roleList));
-        return roleService.degrantRoleFromUserNew(userId, roleList);
-    }
-
-    @GetMapping(value = {"{userId}/components"})
-    public ResponseEntity<BaseResponseDto> queryUserComponentPrivList(@PathVariable Long userId) {
-        return ResponseEntity.status(HttpStatus.OK).body(new BaseResponseDto("success", 200, roleService.queryUserComponentPrivList(userId)));
-    }
-
-    @GetMapping(value = {"history"})
-    public ResponseEntity<CustomeResponse> queryUserHistory(@ModelAttribute PagingRequestDto page, @ModelAttribute UserHisFilterDto dto) {
-        return usersService.queryUserHistory(dto, page);
-    }
 }

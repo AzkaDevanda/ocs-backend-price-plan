@@ -37,45 +37,45 @@ public class UserController {
         return usersService.grantPortalToUsers(userId, defaultPortalId, portalList);
     }
 
-    @GetMapping(value = {"{userId}/role/portals"})
-    public ResponseEntity<BaseResponseDto> queryRolePortalListByUserId(@PathVariable Long userId) {
-        return usersService.queryRolePortalListByUserId(userId);
-    }
+    // @GetMapping(value = {"{userId}/role/portals"})
+    // public ResponseEntity<BaseResponseDto> queryRolePortalListByUserId(@PathVariable Long userId) {
+    //     return usersService.queryRolePortalListByUserId(userId);
+    // }
 
-    @GetMapping(value = {"{userId}/portals"})
-    public ResponseEntity<BaseResponseDto> getPortalListByUserId(@PathVariable Long userId) {
-        return usersService.getPortalListByUserId(userId);
-    }
+    // @GetMapping(value = {"{userId}/portals"})
+    // public ResponseEntity<BaseResponseDto> getPortalListByUserId(@PathVariable Long userId) {
+    //     return usersService.getPortalListByUserId(userId);
+    // }
 
-    @GetMapping(value = {"{userId}/portlets"})
-    public ResponseEntity<BaseResponseDto> qryUserOwnedPortletLists(@PathVariable Long userId) {
-        return usersService.qryUserOwnedPortletList(userId);
-    }
+    // @GetMapping(value = {"{userId}/portlets"})
+    // public ResponseEntity<BaseResponseDto> qryUserOwnedPortletLists(@PathVariable Long userId) {
+    //     return usersService.qryUserOwnedPortletList(userId);
+    // }
 
-    @GetMapping(value = {"{userId}/menus"})
-    public ResponseEntity<BaseResponseDto> queryPrivListByUserId(@PathVariable Long userId) {
-        return usersService.queryPrivListByUserIds(userId);
-    }
+    // @GetMapping(value = {"{userId}/menus"})
+    // public ResponseEntity<BaseResponseDto> queryPrivListByUserId(@PathVariable Long userId) {
+    //     return usersService.queryPrivListByUserIds(userId);
+    // }
 
-    @PostMapping(value = {"{userId}/privs/new"})
-    public ResponseEntity<BaseResponseDto> addPrivsToUserPrivNew(@PathVariable Long userId, @RequestBody List<ProdPrivOperDto> list) {
-        return usersService.addPrivsToUserPrivNew(userId, list);
-    }
+    // @PostMapping(value = {"{userId}/privs/new"})
+    // public ResponseEntity<BaseResponseDto> addPrivsToUserPrivNew(@PathVariable Long userId, @RequestBody List<ProdPrivOperDto> list) {
+    //     return usersService.addPrivsToUserPrivNew(userId, list);
+    // }
 
-    @DeleteMapping(value = {"{userId}/privs/new"})
-    public ResponseEntity<BaseResponseDto> delPrivsFromUserPrivNew(@PathVariable Long userId, @RequestBody List<ProdPrivOperDto> list) {
-        return usersService.delPrivsFromUserPrivNew(userId, list);
-    }
+    // @DeleteMapping(value = {"{userId}/privs/new"})
+    // public ResponseEntity<BaseResponseDto> delPrivsFromUserPrivNew(@PathVariable Long userId, @RequestBody List<ProdPrivOperDto> list) {
+    //     return usersService.delPrivsFromUserPrivNew(userId, list);
+    // }
 
-    @GetMapping("export-users")
-    public ResponseEntity<byte[]> exportUsers(@RequestParam Integer userId) throws IOException {
-        byte[] excelBytes = fileHelper.exportUsers(userId);
+    // @GetMapping("export-users")
+    // public ResponseEntity<byte[]> exportUsers(@RequestParam Integer userId) throws IOException {
+    //     byte[] excelBytes = fileHelper.exportUsers(userId);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=UsersData.xlsx");
-        headers.set(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    //     HttpHeaders headers = new HttpHeaders();
+    //     headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=UsersData.xlsx");
+    //     headers.set(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-        return ResponseEntity.ok().headers(headers).body(excelBytes);
-    }
+    //     return ResponseEntity.ok().headers(headers).body(excelBytes);
+    // }
 
 }
