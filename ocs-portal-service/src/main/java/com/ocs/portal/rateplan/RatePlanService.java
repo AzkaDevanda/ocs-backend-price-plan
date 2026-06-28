@@ -112,37 +112,6 @@ public class RatePlanService {
     @Autowired
     private ValidationService validationService;
 
-    @NotNull
-    private static RatePlanZone getRatePlanZone(EventFeatureRequest zoneDto, Integer ratePlanId) {
-        RatePlanZone ratePlanZone = new RatePlanZone();
-        ratePlanZone.setRatePlanId(ratePlanId);
-        ratePlanZone.setPriority(zoneDto.getPriority());
-        ratePlanZone.setSpId(0);
-        ratePlanZone.setMappingSrcValue(zoneDto.getMappingSrcValue());
-        ratePlanZone.setMappingSrcType(zoneDto.getMappingSrcType());
-        ratePlanZone.setMappingDesValue(zoneDto.getMappingDesValue());
-        ratePlanZone.setMappingDesType(zoneDto.getMappingDesType());
-        ratePlanZone.setLabelShow(zoneDto.getLabelShow());
-        return ratePlanZone;
-    }
-
-    public ResponseEntity<CustomeResponse> getRatePlanZone(Integer ratePlanId, Integer spId) {
-        var data = ratePlanZoneRepository.qryRatePlanZone(ratePlanId, spId)
-                .stream()
-                .map(qryRatePlanZoneMapper::toDto);
-
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
-    }
-
-//    public ResponseEntity<CustomeResponse> qryScriptTemplate(Long scriptTempletId, String scriptTempletGroup, String usageType, Long spId){
-//        var data = scriptTempletRepository.QryScriptTemplate(scriptTempletId, scriptTempletGroup, usageType, spId).stream().map(reservationRuleMapper::qryScriptTemplatedto).toList();
-//        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
-//    }
-//
-//    public ResponseEntity<CustomeResponse> qryRePricePlanByReIdAndOfferVerId(Long reId, Long offerVerId, Long spId){
-//        var data = rePricePlanRepository.qryRePricePlanByReIdAndOfferVerId(reId, offerVerId, spId).stream().map(reservationRuleMapper::qryRePricePlanByReIdAndOfferVerIddto).toList();
-//        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
-//    }
 
     @Transactional
     public BaseResponseDto addRatePlan(RatePlanDto ratePlanDto) {
@@ -160,15 +129,7 @@ public class RatePlanService {
         }
 
         try {
-//            RePricePlanId rePricePlanId = new RePricePlanId();
-//            rePricePlanId.setReId(ratePlanDto.getReId());
-//            rePricePlanId.setOfferVerId(ratePlanDto.getOfferVerId());
 //
-//            RePricePlan rePricePlan = new RePricePlan();
-//            rePricePlan.setId(rePricePlanId);
-//            rePricePlanRepository.save(rePricePlan);
-//            logger.info("::: RE PRICE PLAN successfully saved into database ::");
-
             // INSERT RATE_PLAN
             // builder set entity
             RatePlan ratePlan = RatePlan.builder()
@@ -184,24 +145,7 @@ public class RatePlanService {
             logger.info("::: RATE PLAN successfully saved into database ::");
             Integer ratePlanId = ratePlan.getId();
 
-//            // INSERT RATE_PLAN_CATALOG_ELEMENT
-//            if (ratePlanDto.getCatalogId() != null) {
-//                RatePlanCatalogElement ratePlanCatalogElement = new RatePlanCatalogElement();
-//                ratePlanCatalogElement.setRatePlanId(ratePlanId);
-//                ratePlanCatalogElement.setId(ratePlanDto.getCatalogId());
-//                ratePlanCatalogElement.setSpId(ratePlanDto.getSpId());
-//                ratePlanCatalogElementRepository.save(ratePlanCatalogElement);
-//                logger.info("::: RATE PLAN CATALOG ELEMENT successfully saved into database ::");
-//            }
 //
-//            // INSERT Rate Plan Zone
-//            if (ratePlanDto.getRatePlanZones() != null && !ratePlanDto.getRatePlanZones().isEmpty()) {
-//                for (EventFeatureRequest zoneDto : ratePlanDto.getRatePlanZones()) {
-//                    RatePlanZone ratePlanZone = getRatePlanZone(zoneDto, ratePlanId);
-//                    ratePlanZoneRepository.save(ratePlanZone);
-//                    logger.info("::: RATE PLAN ZONE successfully saved into database ::");
-//                }
-//            }
 
             // INSERT RATE_PLAN_MAPPING
             RatePlanMappingId ratePlanMappingId = new RatePlanMappingId();
@@ -237,24 +181,6 @@ public class RatePlanService {
         ratePlan.setRatePlanCode(dto.getRatePlanCode());
         ratePlan.setRemarks(dto.getRemarks());
         ratePlanRepository.save(ratePlan);
-//        // Update Rate Plan Zone
-//        List<Mapping> listMapping = mappingRepository.selectMappingByRatePlanId(ratePlanId);
-//
-//        if (dto.getZoneFlag().equals('Y')) {
-//            if (!listMapping.isEmpty()) {
-//                return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(400, messageService.getMessage("S-PRD-01022"), null));
-//            }
-//
-//            ratePlanZoneRepository.delRatePlanZoneByRatePlanId(ratePlanId);
-//
-//            if (dto.getRatePlanZones() != null && !dto.getRatePlanZones().isEmpty()) {
-//                for (EventFeatureRequest zoneDto : dto.getRatePlanZones()) {
-//                    RatePlanZone ratePlanZone = getRatePlanZone(zoneDto, ratePlanId);
-//                    ratePlanZoneRepository.save(ratePlanZone);
-//                    logger.info("::: RATE PLAN ZONE successfully saved into database ::");
-//                }
-//            }
-//        }
 
         return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, ratePlan));
 
@@ -310,82 +236,6 @@ public class RatePlanService {
     }
 
 
-    public BaseResponseDto getZoneMap() {
-        BaseResponseDto baseResponseDto = new BaseResponseDto();
-        List<ZoneMap> list = zoneMapRepository.findAll(Sort.by(Sort.Direction.ASC, "zoneMapName"));
-
-        if (list.isEmpty()) {
-            throw new ValidationHandler(EnumRC.DATA_NOT_FOUND.getMessage());
-        }
-
-        List<ZoneMapResponse> responseList = list.stream().map(obj -> {
-            ZoneMapResponse response = new ZoneMapResponse();
-            response.setId(obj.getId());
-            response.setZoneMapName(obj.getZoneMapName());
-            return response;
-        }).toList();
-
-        baseResponseDto.setData(responseList);
-        baseResponseDto.setCode(EnumRC.SUCCESS.getRESPONSE_CODE().toString());
-        baseResponseDto.setMessage(EnumRC.SUCCESS.getMessage());
-
-        return baseResponseDto;
-    }
-
-    public BaseResponseDto getMappingDesType() {
-        BaseResponseDto baseResponseDto = new BaseResponseDto();
-        List<MappingDesTypeMaster> list = mappingDesTypeMasterRepository.findAll(Sort.by(Sort.Direction.ASC, "mappingDesType"));
-
-        if (list.isEmpty()) {
-            throw new ValidationHandler(EnumRC.DATA_NOT_FOUND.getMessage());
-        }
-
-        baseResponseDto.setData(list);
-        baseResponseDto.setCode(EnumRC.SUCCESS.getRESPONSE_CODE().toString());
-        baseResponseDto.setMessage(EnumRC.SUCCESS.getMessage());
-
-        return baseResponseDto;
-    }
-
-    public BaseResponseDto getMappingSrcType() {
-        BaseResponseDto baseResponseDto = new BaseResponseDto();
-        List<MappingSrcTypeMaster> mappingSrcTypeMaster = mappingSrcTypeMasterRepository.findAll();
-
-        if (mappingSrcTypeMaster.isEmpty()) {
-            throw new ValidationHandler(EnumRC.DATA_NOT_FOUND.getMessage());
-        }
-
-        baseResponseDto.setData(mappingSrcTypeMaster);
-        baseResponseDto.setCode(EnumRC.SUCCESS.getRESPONSE_CODE().toString());
-        baseResponseDto.setMessage(EnumRC.SUCCESS.getMessage());
-        return baseResponseDto;
-
-    }
-
-    public BaseResponseDto eventFitureList() {
-        BaseResponseDto baseResponseDto = new BaseResponseDto();
-        List<ReAttrDto> reAttr = reAttrRepository.findByReAttrName();
-
-        if (reAttr.isEmpty()) {
-            throw new ValidationHandler(EnumRC.DATA_NOT_FOUND.getMessage());
-        }
-
-        baseResponseDto.setCode(EnumRC.SUCCESS.getRESPONSE_CODE().toString());
-        baseResponseDto.setMessage(EnumRC.SUCCESS.getMessage());
-        baseResponseDto.setData(reAttr);
-        return baseResponseDto;
-
-    }
-
-    public ResponseEntity<CustomeResponse> getRatePlanZoneAndMappingUnit(Integer mappingId, Integer ratePlanId, Integer spId) {
-        var data = ratePlanZoneRepository.qryRatePlanZoneAndMappingUnit(mappingId, ratePlanId, spId)
-                .stream()
-                .map(qryRatePlanZoneAndMappingUnitMapper::toDto)
-                .toList();
-
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
-    }
-
     @Transactional
     public ResponseEntity<CustomeResponse> deleteRatePlan(Integer ratePlanId) {
         BaseResponseDto baseResponseDto = new BaseResponseDto();
@@ -413,6 +263,8 @@ public class RatePlanService {
         }
         return null;
     }
+
+
 
     private RefValueFormulaDto buildRefValueFormula (RefValueDto refValueDto){
         if(refValueDto == null || !"4".equals(refValueDto.getRefValueType()) || StringUtil.isEmpty(refValueDto.getValueString())){
@@ -645,465 +497,6 @@ public class RatePlanService {
         delRefValueDto(refValueId);
     }
 
-    private static String replaceNewRefValueFun(String ruleScript, String startStr, String endStr, String targetStr) {
-        if (StringUtil.isEmpty(ruleScript) || ruleScript.indexOf(startStr) < 0)
-            return ruleScript;
-        StringBuffer sb = new StringBuffer();
-        int startIndex = ruleScript.indexOf(startStr) + startStr.length();
-        String subFirstStr = ruleScript.substring(ruleScript.indexOf(startStr) + startStr.length(), ruleScript.length());
-        String subSecondStr = subFirstStr.substring(0, subFirstStr.indexOf(endStr));
-        int endIndex = startIndex + subSecondStr.length();
-        if (endIndex < ruleScript.length()) {
-            sb.append(ruleScript.substring(0, startIndex)).append(targetStr).append(ruleScript.substring(endIndex, ruleScript.length()));
-            return sb.toString();
-        }
-        return ruleScript;
-    }
-
-    public void addRefValueInRuleScript(ModRePricePlanDto modRePricePlanDto, String inputRefValueBoField, Long priceId, Long ratePlanId){
-        if(modRePricePlanDto == null){
-            return;
-        }
-        String funPrefix = modRePricePlanDto.getFunPrefix();
-        if(StringUtil.isEmpty(funPrefix)){
-            funPrefix = "r.event.";
-        }
-        String ruleScript = modRePricePlanDto.getRuleScript();
-        String scriptPage = modRePricePlanDto.getScriptPage();
-        if(StringUtil.isEmpty(ruleScript)){
-            return;
-        }
-        List<RefValueExtendDto> refValueList = modRePricePlanDto.getInputRefValueBoField();
-        if(refValueList != null && !refValueList.isEmpty()){
-            for(RefValueExtendDto refValueBo : refValueList){
-                addRefValueBo(refValueBo,priceId,ratePlanId);
-                ruleScript = replaceNewRefValueFun(ruleScript, "r.event.GetProrMonthFee(", ")", String.valueOf(refValueBo
-                        .getRefValueId()));
-                ruleScript = ruleScript.replace("&" + refValueBo.getPythonParamName() + "&", "r.event.GetValueByRefID(" + refValueBo
-                        .getRefValueId() + ")");
-                if(StringUtil.isNotEmpty(scriptPage)){
-                    scriptPage = scriptPage.replace("#" + refValueBo.getPythonParamName() + "#",String.valueOf(refValueBo.getRefValueId()));
-                }
-            }
-        }
-    }
-
-    public Long addRefValueBo(RefValueExtendDto refValueExtendDto, Long priceId, Long ratePlanId){
-        if(refValueExtendDto == null){
-            return null;
-        }
-        if(priceId != null){
-            refValueExtendDto.setPriceId(priceId);
-        }
-        if(ratePlanId != null){
-            refValueExtendDto.setRatePlanId(ratePlanId);
-        }
-        addRefValue(refValueExtendDto);
-        return refValueExtendDto.getRefValueId();
-    }
-
-    public void addRefValue(RefValueExtendDto refValueExtendDto){
-        if(refValueExtendDto == null){
-            return;
-        }
-        if(refValueExtendDto.getRefValueType().equals(4)){
-            RefValueFormulaDto formula = refValueExtendDto.getFormula();
-            cascadeAddRefValueInFormula(formula,refValueExtendDto.getRatePlanId(),refValueExtendDto.getPriceId());
-            refValueExtendDto.setValueString(formula.getRefValueFormulaStr());
-        }
-        addRefValueDto((RefValueDto) refValueExtendDto);
-    }
-
-    private void cascadeAddRefValueInFormula(RefValueFormulaDto formula, Long ratePlanId, Long priceId) {
-        if (formula == null)
-            return;
-        logger.debug("cascadeAddRefValueInFormula, formula=[{}]", new Object[] { formula.getRefValueFormulaStr() });
-        List<RefValueExtendDto> refValList = formula.getAllLevelRefValueInFormula();
-        for (RefValueExtendDto refVal : refValList) {
-            refVal.setRatePlanId(ratePlanId);
-            refVal.setPriceId(priceId);
-            addRefValueDto((RefValueDto)refVal);
-        }
-    }
-
-    @Transactional(rollbackFor =  Exception.class)
-    public void addRefValueDto(RefValueDto refValueDto){
-        if (refValueDto == null)
-            return;
-        Long refValueId = validationService.getNextValFromDual("REF_VALUE_ID_SEQ");
-        LocalDate now = LocalDate.now();
-        refValueDto.setState("A");
-        refValueDto.setStateDate(now);
-        refValueDto.setCreatedDate(now);
-        refValueDto.setRefValueId(refValueId);
-        RefValue refValue = reservationRuleMapper.toEntity(refValueDto);
-        refValueRepository.save(refValue);
-        checkRefValueAfterChange(refValueDto);
-        updateParamRelationOnAddRefValue(refValueDto);
-        updateOfferVerRelationOnAddRefValue(refValueDto);
-    }
-
-    public void checkRefValueAfterChange(RefValueDto refValueDto){
-        if (refValueDto == null)
-            return;
-        logger.debug("checkRefValueAfterChange, RefValue[{}]", new Object[] { refValueDto });
-        SimpleParamDefineDto simpleParamDto = null;
-        TableParamDefineDto tableParamDto = null;
-        if ("2".equals(refValueDto.getRefValueType())) {
-            simpleParamDto = qrySimpleParamDefineById(Math.toIntExact(refValueDto.getSimpleParamId()));
-        } else if ("3".equals(refValueDto.getRefValueType())) {
-            tableParamDto = qryTableParamDefine(refValueDto.getTableParamId());
-        }
-        if (simpleParamDto != null && "P".equals(simpleParamDto.getIsGlobal())) {
-            long refCnt = refValueRepository.qryRefCntByMultipleOfferVer(simpleParamDto.getSimpleParamId()).longValue();
-            if (refCnt > 1L)
-                throw new ValidationHandler(messageService.getMessage("S-PRD-50968"));
-        }
-        if (tableParamDto != null && "P".equals(tableParamDto.getIsGlobal())) {
-            long refCnt = refValueRepository.qryRefCntByMultipleOfferVer(tableParamDto.getTableParamId()).longValue();
-            if (refCnt > 1L)
-                throw new ValidationHandler(messageService.getMessage("S-PRD-50968"));
-        }
-    }
-
-    public void updateParamRelationOnAddRefValue(RefValueDto refValDto) {
-        if (refValDto == null)
-            return;
-        Long paramId = null;
-        String paramType = "";
-        if ("2".equals(refValDto.getRefValueType())) {
-            paramType = "1";
-            paramId = refValDto.getSimpleParamId();
-        } else if ("3".equals(refValDto.getRefValueType())) {
-            paramType = "2";
-            paramId = refValDto.getTableParamId();
-        }
-        if (paramId == null)
-            return;
-        updatePriceParam(refValDto, paramId, paramType);
-        updateRatePlanParam(refValDto, paramId, paramType);
-        updatePricePlanParam(refValDto, paramId, paramType);
-    }
-
-    private void updatePriceParam(RefValueDto refValDto, Long paramId, String paramType) {
-        if (refValDto.getPriceId() != null && refValDto.getPriceId() > 0) {
-            PriceParamDto priceParamDto = new PriceParamDto();
-            priceParamDto.setPriceId(refValDto.getPriceId());
-            priceParamDto.setSpId(refValDto.getSpId());
-            priceParamDto.setParamType(paramType);
-            if ("1".equals(paramType)) {
-                priceParamDto.setSimpleParamId(paramId);
-            } else {
-                priceParamDto.setTableParamId(paramId);
-            }
-            addPriceParam(priceParamDto);
-        }
-    }
-
-    @Transactional(rollbackFor =  Exception.class)
-    public void addPriceParam(PriceParamDto priceParamDto) {
-        if (priceParamDto == null){
-            return;
-        }
-        Long paramId = priceParamDto.getSimpleParamId();
-        if ("2".equals(priceParamDto.getParamType()))
-            paramId = priceParamDto.getTableParamId();
-        if (!isPriceParamExist(priceParamDto.getPriceId(), paramId)) {
-            priceParamDto.setPriceParamId(validationService.getNextValFromDual("TARIFF_PARAM_MAPPING_ID_SEQ"));
-            PriceParam priceParam = reservationRuleMapper.toEntityPriceParam(priceParamDto);
-            priceParamRepository.save(priceParam);
-        } else {
-            logger.debug("PriceParam already exists. priceId=[{}], paramId=[{}]", new Object[] { priceParamDto.getPriceId(), paramId });
-        }
-    }
-
-    public boolean isPriceParamExist(Long priceId, Long paramId) {
-        PriceParamExtendDto[] paramArr = qryPriceParamByPrceId(priceId);
-        boolean isExist = false;
-        if (paramArr != null && paramArr.length > 0)
-            for (PriceParamExtendDto param : paramArr) {
-                if (param.getParamId().equals(paramId)) {
-                    isExist = true;
-                    break;
-                }
-            }
-        return isExist;
-    }
-
-    public PriceParamExtendDto[] qryPriceParamByPrceId (Long priceId){
-        PriceParamDto[] priceParamDtoList = priceParamRepository.qryPriceParam(priceId,null);
-        List<PriceParamExtendDto> priceParamList = null;
-        if(priceParamDtoList != null && priceParamDtoList.length > 0){
-            priceParamList = new ArrayList<>();
-            PriceParamExtendDto priceParam = null;
-            PriceParamDto[] arrayOfPriceParamDto = priceParamDtoList;
-            int i = arrayOfPriceParamDto.length;
-            byte b = 0;
-            while(true) {
-                if(b < i){
-                    PriceParamDto paramDto = arrayOfPriceParamDto[b];
-                    priceParam = new PriceParamExtendDto();
-                    priceParam.setPriceParamId(paramDto.getPriceParamId());
-                    priceParam.setPriceId(paramDto.getPriceId());
-                    priceParam.setParamType(paramDto.getParamType());
-                    if ("1".equals(paramDto.getParamType())) {
-                        if(paramDto.getSimpleParamId() == null) {
-                            this.logger.debug("NOTE: fail to get paramId: paramDto=[{}]", new Object[] { paramDto });
-                        } else{
-                            SimpleParamDefineDto simpleParamDefineDto = qrySimpleParamDefineById(Math.toIntExact(paramDto.getSimpleParamId()));
-                            if("X".equals(simpleParamDefineDto.getState())){
-                                this.logger.debug("NOTE: this simple param is invalid, paramId=[{}]", new Object[] { simpleParamDefineDto.getSimpleParamId() });
-                            } else{
-                                priceParam.setParamId(paramDto.getSimpleParamId());
-                                priceParam.setParamName(simpleParamDefineDto.getParamName());
-                                priceParam.setParamCode(simpleParamDefineDto.getParamCode());
-                                priceParam.setDefValue(simpleParamDefineDto.getDefValue());
-                                priceParam.setIsGlobal(simpleParamDefineDto.getIsGlobal());
-                                priceParamList.add(priceParam);
-                            }
-                        }
-                        continue;
-                    }
-                    if("2".equals(paramDto.getParamType())){
-                        if(paramDto.getTableParamId() == null) {
-                            this.logger.debug("NOTE: fail to get paramId: paramDto=[{}]", new Object[] { paramDto });
-                        } else{
-                            TableParamDefineDto tableParamDefineDto = qryTableParamDefine(paramDto.getTableParamId());
-                            if("X".equals(tableParamDefineDto.getState())){
-                                this.logger.debug("NOTE: this table param is invalid, paramId=[{}]", new Object[] { tableParamDefineDto.getTableParamId() });
-                            } else{
-                                priceParam.setParamId(paramDto.getTableParamId());
-                                priceParam.setParamName(tableParamDefineDto.getParamName());
-                                priceParam.setParamCode(tableParamDefineDto.getParamCode());
-                                priceParam.setIsGlobal(tableParamDefineDto.getIsGlobal());
-                                priceParamList.add(priceParam);
-                            }
-                        }
-                        continue;
-                    }
-                } else {
-                    break;
-                }
-                priceParamList.add(priceParam);
-                b++;
-            }
-        }
-        if (priceParamList != null && !priceParamList.isEmpty())
-            return priceParamList.<PriceParamExtendDto>toArray(new PriceParamExtendDto[0]);
-        return null;
-    }
-
-    private void updateRatePlanParam(RefValueDto refValDto, Long paramId, String paramType) {
-        if (null != refValDto.getRatePlanId()) {
-            RatePlanParamDto ratePlanParamDto = new RatePlanParamDto();
-            ratePlanParamDto.setRatePlanId(refValDto.getRatePlanId());
-            ratePlanParamDto.setSpId(refValDto.getSpId());
-            ratePlanParamDto.setParamType(paramType);
-            if ("1".equals(paramType)) {
-                ratePlanParamDto.setSimpleParamId(paramId);
-            } else {
-                ratePlanParamDto.setTableParamId(paramId);
-            }
-            addRatePlanParam(ratePlanParamDto);
-        }
-    }
-
-    @Transactional(rollbackFor =  Exception.class)
-    public void addRatePlanParam(RatePlanParamDto ratePlanParamDto){
-        if(ratePlanParamDto == null){
-            return;
-        }
-        Long paramId = ratePlanParamDto.getSimpleParamId();
-        if ("2".equals(ratePlanParamDto.getParamType()))
-            paramId = ratePlanParamDto.getTableParamId();
-        if (!isRatePlanParamExist(ratePlanParamDto.getRatePlanId(), paramId)) {
-            ratePlanParamDto.setRatePlanParamId(validationService.getNextValFromDual("TARIFF_PARAM_MAPPING_ID_SEQ"));
-            RatePlanParam ratePlanParam = reservationRuleMapper.toEntityRatePlanParam(ratePlanParamDto);
-            ratePlanParamRepository.save(ratePlanParam);
-        } else {
-            logger.debug("RatePlanParam already exits. ratePlanId=[{}], paramId=[{}]", new Object[] { ratePlanParamDto.getRatePlanId(), paramId });
-        }
-    }
-
-    public boolean isRatePlanParamExist(Long ratePlanId, Long paramId) {
-        RatePlanParamExtendDto[] paramArr = qryRatePlanParamByRatePlanId(ratePlanId);
-        boolean isExist = false;
-        if (paramArr != null && paramArr.length > 0)
-            for (RatePlanParamExtendDto param : paramArr) {
-                if (param.getParamId() != null && param.getParamId().equals(paramId)) {
-                    isExist = true;
-                    break;
-                }
-            }
-        return isExist;
-    }
-
-    public RatePlanParamExtendDto[] qryRatePlanParamByRatePlanId(Long ratePlanId) {
-        RatePlanParamDto[] ratePlanParamDtoList = ratePlanParamRepository.qryRatePlanParam(ratePlanId,null);
-        List<RatePlanParamExtendDto> ratePlanParamList = null;
-        if(ratePlanParamDtoList != null && ratePlanParamDtoList.length > 0){
-            ratePlanParamList = new ArrayList<>();
-            RatePlanParamExtendDto ratePlanParam = null;
-            RatePlanParamDto[] arrayOfRatePlanParamDto = ratePlanParamDtoList;
-            int i = arrayOfRatePlanParamDto.length;
-            byte b = 0;
-            while(true){
-                if(b  > i){
-                    RatePlanParamDto paramDto = arrayOfRatePlanParamDto[b];
-                    ratePlanParam = new RatePlanParamExtendDto();
-                    ratePlanParam.setRatePlanId(ratePlanId);
-                    ratePlanParam.setRatePlanParamId(paramDto.getRatePlanParamId());
-                    ratePlanParam.setParamType(paramDto.getParamType());
-                    if("1".equals(paramDto.getParamType())){
-                        if(paramDto.getSimpleParamId() == null){
-                            this.logger.debug("NOTE: fail to get paramId: paramDto=[{}]", new Object[] { paramDto });
-                        } else {
-                            SimpleParamDefineDto simpleParamDefineDto = qrySimpleParamDefineById(Math.toIntExact(paramDto.getSimpleParamId()));
-                            if("X".equals(simpleParamDefineDto.getState())){
-                                this.logger.debug("NOTE: this simple param is invalid, paramId=[{}]", new Object[] { simpleParamDefineDto.getSimpleParamId() });
-                            } else {
-                                ratePlanParam.setParamId(paramDto.getSimpleParamId());
-                                ratePlanParam.setParamName(simpleParamDefineDto.getParamName());
-                                ratePlanParam.setParamCode(simpleParamDefineDto.getParamCode());
-                                ratePlanParam.setDefValue(simpleParamDefineDto.getDefValue());
-                                ratePlanParam.setIsGlobal(simpleParamDefineDto.getIsGlobal());
-                                ratePlanParamList.add(ratePlanParam);
-                            }
-                        }
-                        continue;
-                    }
-                    if("2".equals(paramDto.getParamType())){
-                        if(paramDto.getTableParamId() == null){
-                            this.logger.debug("NOTE: fail to get paramId: paramDto=[{}]", new Object[] { paramDto });
-                        } else {
-                            TableParamDefineDto tableParamDefineDto = qryTableParamDefine(paramDto.getTableParamId());
-                            if("X".equals(tableParamDefineDto.getState())){
-                                this.logger.debug("NOTE: this table param is invalid, paramId=[{}]", new Object[] { tableParamDefineDto.getTableParamId() });
-                            } else {
-                                ratePlanParam.setParamId(paramDto.getTableParamId());
-                                ratePlanParam.setParamName(tableParamDefineDto.getParamName());
-                                ratePlanParam.setParamCode(tableParamDefineDto.getParamCode());
-                                ratePlanParam.setIsGlobal(tableParamDefineDto.getIsGlobal());
-                                ratePlanParamList.add(ratePlanParam);
-                            }
-                        }
-                        continue;
-                    }
-                } else {
-                    break;
-                }
-                ratePlanParamList.add(ratePlanParam);
-                b++;
-            }
-        }
-        if (ratePlanParamList != null && !ratePlanParamList.isEmpty())
-            return ratePlanParamList.<RatePlanParamExtendDto>toArray(new RatePlanParamExtendDto[0]);
-        return null;
-    }
-
-    private void updatePricePlanParam(RefValueDto refValDto, Long paramId, String paramType) {
-        if (refValDto.getOfferVerId() != null) {
-            PricePlanParamDto pricePlanParamDto = new PricePlanParamDto();
-            pricePlanParamDto.setInsideFlag("Y");
-            pricePlanParamDto.setOfferVerId(refValDto.getOfferVerId());
-            pricePlanParamDto.setParamType(paramType);
-            pricePlanParamDto.setSpId(refValDto.getSpId());
-            if ("1".equals(paramType)) {
-                pricePlanParamDto.setSimpleParamId(paramId);
-            } else {
-                pricePlanParamDto.setTableParamId(paramId);
-            }
-            addPricePlanParam(pricePlanParamDto);
-        }
-    }
-
-    public void addPricePlanParam(PricePlanParamDto pricePlanParamDto){
-        if (pricePlanParamDto == null)
-            return;
-        logger.debug("addPricePlanParam: [{}]", new Object[] { pricePlanParamDto });
-        Long paramId = pricePlanParamDto.getSimpleParamId();
-        if ("2".equals(pricePlanParamDto.getParamType()))
-            paramId = pricePlanParamDto.getTableParamId();
-        PricePlanParamDto oldPricePlanParam = qryPricePlanParamByOfferVerAndParamId(pricePlanParamDto.getOfferVerId(), paramId);
-        if (oldPricePlanParam == null) {
-            pricePlanParamDto.setPricePlanParamId(validationService.getNextValFromDual("TARIFF_PARAM_MAPPING_ID_SEQ"));
-            PricePlanParam pricePlanParam = reservationRuleMapper.toEntityPricePlanParam(pricePlanParamDto);
-            pricePlanParamRepository.save(pricePlanParam);
-        } else if (oldPricePlanParam.getInsideFlag().equals(pricePlanParamDto.getInsideFlag())) {
-            pricePlanParamDto.setPricePlanParamId(oldPricePlanParam.getPricePlanParamId());
-            modPricePlanParam(pricePlanParamDto);
-        }
-    }
-
-    public void modPricePlanParam(PricePlanParamDto pricePlanParamDto) {
-        if (pricePlanParamDto == null)
-            return;
-        PricePlanParam pricePlanParam = pricePlanParamRepository.findById(Math.toIntExact(pricePlanParamDto.getPricePlanParamId())).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, HttpStatusConstant.NOT_FOUND_MESSAGE));
-        reservationRuleMapper.updateEntityFromDto(pricePlanParamDto,pricePlanParam);
-        pricePlanParamRepository.save(pricePlanParam);
-    }
-
-    public void updateOfferVerRelationOnAddRefValue(RefValueDto refValueDto){
-        if(refValueDto == null){
-            return;
-        }
-        RefValueToOfferVerDto refValueToOfferVerDto = null;
-        if(refValueDto.getOfferVerId() == null || refValueDto.getOfferVerId().longValue() == -1L){
-            if(refValueDto.getRatePlanId() != null && refValueDto.getRatePlanId().longValue() != -1L){
-                RatePlanMappingDto[] ratePlanMappingArr = ratePlanMappingRepository.qryRatePlanMappingByRatePlanId(refValueDto.getRatePlanId());
-                for(RatePlanMappingDto ratePlanMappingDto : ratePlanMappingArr){
-                    refValueToOfferVerDto = new RefValueToOfferVerDto();
-                    refValueToOfferVerDto.setOfferVerId(ratePlanMappingDto.getOfferVerId());
-                    refValueToOfferVerDto.setRefValueId(refValueDto.getRefValueId());
-                    refValueToOfferVerDto.setSpId(refValueDto.getSpId());
-                    addRefValueToOfferVer(refValueToOfferVerDto);
-                }
-            } else {
-                refValueToOfferVerDto = new RefValueToOfferVerDto();
-                refValueToOfferVerDto.setOfferVerId(Long.valueOf(-1L));
-                refValueToOfferVerDto.setRefValueId(refValueDto.getRefValueId());
-                refValueToOfferVerDto.setSpId(refValueDto.getSpId());
-                addRefValueToOfferVer(refValueToOfferVerDto);
-            }
-        } else {
-            refValueToOfferVerDto = new RefValueToOfferVerDto();
-            refValueToOfferVerDto.setOfferVerId(refValueDto.getOfferVerId());
-            refValueToOfferVerDto.setRefValueId(refValueDto.getRefValueId());
-            refValueToOfferVerDto.setSpId(refValueDto.getSpId());
-            addRefValueToOfferVer(refValueToOfferVerDto);
-        }
-    }
-
-    private void addRefValueToOfferVer(RefValueToOfferVerDto refValueToOfferVerDto) {
-        if (refValueToOfferVerDto == null)
-            return ;
-        if (refValueToOfferVerRepository.qryRefValueToOfferVer(refValueToOfferVerDto.getRefValueId(), refValueToOfferVerDto
-                .getOfferVerId()) != null) {
-            logger.debug("the same RefValueToOfferVerDto exist. Exit without adding.");
-            return;
-        }
-        reservationRuleMapper.toEntityRefValueOfferVer(refValueToOfferVerDto);
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public int updateScriptPage(ModRePricePlanDto dto) {
-
-        if (dto == null || dto.getReId() == null || dto.getOfferVerId() == null) {
-            return 0;
-        }
-        byte[] scriptPageBytes = null;
-        if (StringUtil.isNotEmpty(dto.getScriptPage())) {
-            scriptPageBytes = dto.getScriptPage()
-                    .getBytes(StandardCharsets.UTF_8);
-        }
-        return rePricePlanRepository.updateScriptPage(scriptPageBytes, dto.getReId(), dto.getOfferVerId()
-        );
-    }
-
-
-    public void modScriptPage(ModRePricePlanDto modRePricePlanDto) {
-        updateScriptPage(modRePricePlanDto);
-    }
 
 
     @Transactional(rollbackFor =  Exception.class)
@@ -1124,7 +517,6 @@ public class RatePlanService {
                 }
             }
         }
-        addRefValueInRuleScript(modRePricePlanDto,"PYTHON_REF_VALUE",null,null);
         if(modRePricePlanProjection == null){
             RePricePlan rePricePlan = reservationRuleMapper.toEntityRePricePlan(modRePricePlanDto);
             rePricePlanRepository.save(rePricePlan);
@@ -1133,9 +525,9 @@ public class RatePlanService {
             reservationRuleMapper.updateEntityRePricePlan(modRePricePlanDto, rePricePlan);
             rePricePlanRepository.save(rePricePlan);
         }
-        modScriptPage(modRePricePlanDto);
         return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
     }
+
 
 
 }

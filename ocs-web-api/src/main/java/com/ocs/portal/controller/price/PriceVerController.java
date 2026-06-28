@@ -22,15 +22,6 @@ public class PriceVerController {
     @Autowired
     private PriceServices priceService;
 
-    @GetMapping(value = "reattr-price/list")
-    public ResponseEntity<CustomeResponse> listReAttrForPrice() {
-        return pricePlanVerService.listReAttrForPrice();
-    }
-
-//    @GetMapping(value = "listForUpdate/{id}")
-//    public ResponseEntity<BaseResponseDto> listForUpdate(@PathVariable Long id) {
-//        return ResponseEntity.ok(pricePlanVerService.getPriceDetailById(id));
-//    }
 
     @GetMapping({"/{ratePlanId}"})
     public ResponseEntity<BaseResponseDto> getPricePlanVer(@PathVariable Integer ratePlanId) {
@@ -42,6 +33,27 @@ public class PriceVerController {
     public ResponseEntity<CustomeResponse> updatePricePlanVer(@Schema(description = "ex : priceVerId (11516)") @PathVariable Integer priceVerId, @RequestBody UpdatePriceVerDto dto) {
         return pricePlanVerService.updatePriceVer(priceVerId, dto);
     }
+    @GetMapping(value = "reattr-price/list")
+    public ResponseEntity<CustomeResponse> listReAttrForPrice() {
+        return pricePlanVerService.listReAttrForPrice();
+    }
+
+    @DeleteMapping("/delete/{priceVerId}")
+    public ResponseEntity<BaseResponseDto> deletePriceVer(@PathVariable Integer priceVerId){
+        return ResponseEntity.ok(pricePlanVerService.deletePriceVer(priceVerId));
+    }
+
+    @DeleteMapping("/delete/acm/{priceId}/{priceVerId}")
+    public ResponseEntity<CustomeResponse> deletePriceVerAcm(@PathVariable Integer priceId, @PathVariable Integer priceVerId){
+        return priceService.deleteAcm(priceId,priceVerId);
+    }
+
+
+//    @GetMapping(value = "listForUpdate/{id}")
+//    public ResponseEntity<BaseResponseDto> listForUpdate(@PathVariable Long id) {
+//        return ResponseEntity.ok(pricePlanVerService.getPriceDetailById(id));
+//    }
+
 
 //    @DeleteMapping({"/delete/{priceId}"})
 //    public ResponseEntity<BaseResponseDto> deletePricePlanVer(@PathVariable Long priceId) {
@@ -63,15 +75,5 @@ public class PriceVerController {
 //    public ResponseEntity<BaseResponseDto> addExpressionPrice(@Validated @RequestBody ExpressionPriceRequest dto){
 //        return ResponseEntity.ok(pricePlanVerService.addExpressionPrice(dto));
 //    }
-
-    @DeleteMapping("/delete/{priceVerId}")
-    public ResponseEntity<BaseResponseDto> deletePriceVer(@PathVariable Integer priceVerId){
-        return ResponseEntity.ok(pricePlanVerService.deletePriceVer(priceVerId));
-    }
-
-    @DeleteMapping("/delete/acm/{priceId}/{priceVerId}")
-    public ResponseEntity<CustomeResponse> deletePriceVerAcm(@PathVariable Integer priceId, @PathVariable Integer priceVerId){
-        return priceService.deleteAcm(priceId,priceVerId);
-    }
 
 }

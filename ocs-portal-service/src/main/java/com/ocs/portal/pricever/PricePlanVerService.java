@@ -537,8 +537,10 @@ public class PricePlanVerService {
 
         return createSuccessResponse();
     }
-//1 price&benefit 8 nyimpen acct item type 5 resouce id
-// re -> eventl
+//1 benefit value, price yang ada di acm, price yang ada di rating
+// 8 nyimpen resorce id yg ada di acm
+// 5 acct item type
+// re type nya 3 -> subscription
 
     private RefValue createRefValueAcmPriceResourceId(InsertAccumulationPriceDto request, Long priceId, Acm acm,
                                                       boolean create) {
@@ -1077,6 +1079,7 @@ public class PricePlanVerService {
         return baseResponseDto;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponseDto deletePriceVer(Integer priceVerId) {
         BaseResponseDto response = new BaseResponseDto();
 
