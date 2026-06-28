@@ -1,4 +1,4 @@
-package com.ocs.portal.Rateplan;
+package com.ocs.portal.rateplan;
 
 import com.ocs.portal.ValidationService;
 import com.ocs.portal.common.MessageService;
@@ -237,8 +237,6 @@ public class RatePlanService {
         ratePlan.setRatePlanCode(dto.getRatePlanCode());
         ratePlan.setRemarks(dto.getRemarks());
         ratePlanRepository.save(ratePlan);
-
-
 //        // Update Rate Plan Zone
 //        List<Mapping> listMapping = mappingRepository.selectMappingByRatePlanId(ratePlanId);
 //
@@ -1141,3 +1139,4 @@ public class RatePlanService {
 
 
 }
+

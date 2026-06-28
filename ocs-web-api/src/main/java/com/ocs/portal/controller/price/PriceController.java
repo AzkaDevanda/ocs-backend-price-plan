@@ -1,7 +1,7 @@
 package com.ocs.portal.controller.price;
 
-import com.ocs.portal.price.PricePlanVerService;
-import com.ocs.portal.price.PriceService;
+import com.ocs.portal.price.PriceServices;
+import com.ocs.portal.pricever.PricePlanVerService;
 import com.ocs.portal.controller.priceplan.PricePlanController;
 import com.ocs.portal.dto.request.*;
 import com.ocs.portal.dto.response.CustomeResponse;
@@ -23,7 +23,7 @@ public class PriceController {
     private static final Logger log = LoggerFactory.getLogger(PriceController.class);
 
     @Autowired
-    private PriceService priceService;
+    private PriceServices priceService;
 
     @Autowired
     private PricePlanVerService pricePlanVerService;

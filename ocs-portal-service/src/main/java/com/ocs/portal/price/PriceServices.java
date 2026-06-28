@@ -1,5 +1,6 @@
 package com.ocs.portal.price;
 
+
 import com.ocs.portal.common.MessageService;
 import com.ocs.portal.constant.HttpStatusConstant;
 import com.ocs.portal.dto.request.ModPricePriorityRequest;
@@ -24,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class PriceService {
+public class PriceServices {
 
     @Autowired
     private PriceRepository priceRepository;
@@ -65,7 +66,7 @@ public class PriceService {
     @Autowired
     PriceMapper priceMapper;
 
-    Logger logger = LoggerFactory.getLogger(PriceService.class);
+    Logger logger = LoggerFactory.getLogger(PriceServices.class);
 
     @Transactional
     public CustomeResponse modifyPricePriority(ModPricePriorityRequest modPricePriorityRequest) {
