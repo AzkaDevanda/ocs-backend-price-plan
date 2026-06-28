@@ -1,7 +1,7 @@
 package com.ocs.portal.controller.price;
 
-import com.ocs.portal.price.PricePlanVerService;
-import com.ocs.portal.price.PriceService;
+import com.ocs.portal.price.PriceServices;
+import com.ocs.portal.pricever.PricePlanVerService;
 import com.ocs.portal.dto.request.UpdatePriceVerDto;
 import com.ocs.portal.dto.response.BaseResponseDto;
 import com.ocs.portal.dto.response.CustomeResponse;
@@ -20,7 +20,7 @@ public class PriceVerController {
     @Autowired
     private PricePlanVerService pricePlanVerService;
     @Autowired
-    private PriceService priceService;
+    private PriceServices priceService;
 
     @GetMapping(value = "reattr-price/list")
     public ResponseEntity<CustomeResponse> listReAttrForPrice() {
