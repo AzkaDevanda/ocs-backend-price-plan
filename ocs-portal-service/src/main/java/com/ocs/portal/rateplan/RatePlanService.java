@@ -134,15 +134,6 @@ public class RatePlanService {
         return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
     }
 
-//    public ResponseEntity<CustomeResponse> qryScriptTemplate(Long scriptTempletId, String scriptTempletGroup, String usageType, Long spId){
-//        var data = scriptTempletRepository.QryScriptTemplate(scriptTempletId, scriptTempletGroup, usageType, spId).stream().map(reservationRuleMapper::qryScriptTemplatedto).toList();
-//        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
-//    }
-//
-//    public ResponseEntity<CustomeResponse> qryRePricePlanByReIdAndOfferVerId(Long reId, Long offerVerId, Long spId){
-//        var data = rePricePlanRepository.qryRePricePlanByReIdAndOfferVerId(reId, offerVerId, spId).stream().map(reservationRuleMapper::qryRePricePlanByReIdAndOfferVerIddto).toList();
-//        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
-//    }
 
     @Transactional
     public BaseResponseDto addRatePlan(RatePlanDto ratePlanDto) {
@@ -160,15 +151,7 @@ public class RatePlanService {
         }
 
         try {
-//            RePricePlanId rePricePlanId = new RePricePlanId();
-//            rePricePlanId.setReId(ratePlanDto.getReId());
-//            rePricePlanId.setOfferVerId(ratePlanDto.getOfferVerId());
 //
-//            RePricePlan rePricePlan = new RePricePlan();
-//            rePricePlan.setId(rePricePlanId);
-//            rePricePlanRepository.save(rePricePlan);
-//            logger.info("::: RE PRICE PLAN successfully saved into database ::");
-
             // INSERT RATE_PLAN
             // builder set entity
             RatePlan ratePlan = RatePlan.builder()
@@ -184,24 +167,7 @@ public class RatePlanService {
             logger.info("::: RATE PLAN successfully saved into database ::");
             Integer ratePlanId = ratePlan.getId();
 
-//            // INSERT RATE_PLAN_CATALOG_ELEMENT
-//            if (ratePlanDto.getCatalogId() != null) {
-//                RatePlanCatalogElement ratePlanCatalogElement = new RatePlanCatalogElement();
-//                ratePlanCatalogElement.setRatePlanId(ratePlanId);
-//                ratePlanCatalogElement.setId(ratePlanDto.getCatalogId());
-//                ratePlanCatalogElement.setSpId(ratePlanDto.getSpId());
-//                ratePlanCatalogElementRepository.save(ratePlanCatalogElement);
-//                logger.info("::: RATE PLAN CATALOG ELEMENT successfully saved into database ::");
-//            }
 //
-//            // INSERT Rate Plan Zone
-//            if (ratePlanDto.getRatePlanZones() != null && !ratePlanDto.getRatePlanZones().isEmpty()) {
-//                for (EventFeatureRequest zoneDto : ratePlanDto.getRatePlanZones()) {
-//                    RatePlanZone ratePlanZone = getRatePlanZone(zoneDto, ratePlanId);
-//                    ratePlanZoneRepository.save(ratePlanZone);
-//                    logger.info("::: RATE PLAN ZONE successfully saved into database ::");
-//                }
-//            }
 
             // INSERT RATE_PLAN_MAPPING
             RatePlanMappingId ratePlanMappingId = new RatePlanMappingId();
@@ -237,24 +203,6 @@ public class RatePlanService {
         ratePlan.setRatePlanCode(dto.getRatePlanCode());
         ratePlan.setRemarks(dto.getRemarks());
         ratePlanRepository.save(ratePlan);
-//        // Update Rate Plan Zone
-//        List<Mapping> listMapping = mappingRepository.selectMappingByRatePlanId(ratePlanId);
-//
-//        if (dto.getZoneFlag().equals('Y')) {
-//            if (!listMapping.isEmpty()) {
-//                return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(400, messageService.getMessage("S-PRD-01022"), null));
-//            }
-//
-//            ratePlanZoneRepository.delRatePlanZoneByRatePlanId(ratePlanId);
-//
-//            if (dto.getRatePlanZones() != null && !dto.getRatePlanZones().isEmpty()) {
-//                for (EventFeatureRequest zoneDto : dto.getRatePlanZones()) {
-//                    RatePlanZone ratePlanZone = getRatePlanZone(zoneDto, ratePlanId);
-//                    ratePlanZoneRepository.save(ratePlanZone);
-//                    logger.info("::: RATE PLAN ZONE successfully saved into database ::");
-//                }
-//            }
-//        }
 
         return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, ratePlan));
 
@@ -309,82 +257,6 @@ public class RatePlanService {
         return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
     }
 
-
-    public BaseResponseDto getZoneMap() {
-        BaseResponseDto baseResponseDto = new BaseResponseDto();
-        List<ZoneMap> list = zoneMapRepository.findAll(Sort.by(Sort.Direction.ASC, "zoneMapName"));
-
-        if (list.isEmpty()) {
-            throw new ValidationHandler(EnumRC.DATA_NOT_FOUND.getMessage());
-        }
-
-        List<ZoneMapResponse> responseList = list.stream().map(obj -> {
-            ZoneMapResponse response = new ZoneMapResponse();
-            response.setId(obj.getId());
-            response.setZoneMapName(obj.getZoneMapName());
-            return response;
-        }).toList();
-
-        baseResponseDto.setData(responseList);
-        baseResponseDto.setCode(EnumRC.SUCCESS.getRESPONSE_CODE().toString());
-        baseResponseDto.setMessage(EnumRC.SUCCESS.getMessage());
-
-        return baseResponseDto;
-    }
-
-    public BaseResponseDto getMappingDesType() {
-        BaseResponseDto baseResponseDto = new BaseResponseDto();
-        List<MappingDesTypeMaster> list = mappingDesTypeMasterRepository.findAll(Sort.by(Sort.Direction.ASC, "mappingDesType"));
-
-        if (list.isEmpty()) {
-            throw new ValidationHandler(EnumRC.DATA_NOT_FOUND.getMessage());
-        }
-
-        baseResponseDto.setData(list);
-        baseResponseDto.setCode(EnumRC.SUCCESS.getRESPONSE_CODE().toString());
-        baseResponseDto.setMessage(EnumRC.SUCCESS.getMessage());
-
-        return baseResponseDto;
-    }
-
-    public BaseResponseDto getMappingSrcType() {
-        BaseResponseDto baseResponseDto = new BaseResponseDto();
-        List<MappingSrcTypeMaster> mappingSrcTypeMaster = mappingSrcTypeMasterRepository.findAll();
-
-        if (mappingSrcTypeMaster.isEmpty()) {
-            throw new ValidationHandler(EnumRC.DATA_NOT_FOUND.getMessage());
-        }
-
-        baseResponseDto.setData(mappingSrcTypeMaster);
-        baseResponseDto.setCode(EnumRC.SUCCESS.getRESPONSE_CODE().toString());
-        baseResponseDto.setMessage(EnumRC.SUCCESS.getMessage());
-        return baseResponseDto;
-
-    }
-
-    public BaseResponseDto eventFitureList() {
-        BaseResponseDto baseResponseDto = new BaseResponseDto();
-        List<ReAttrDto> reAttr = reAttrRepository.findByReAttrName();
-
-        if (reAttr.isEmpty()) {
-            throw new ValidationHandler(EnumRC.DATA_NOT_FOUND.getMessage());
-        }
-
-        baseResponseDto.setCode(EnumRC.SUCCESS.getRESPONSE_CODE().toString());
-        baseResponseDto.setMessage(EnumRC.SUCCESS.getMessage());
-        baseResponseDto.setData(reAttr);
-        return baseResponseDto;
-
-    }
-
-    public ResponseEntity<CustomeResponse> getRatePlanZoneAndMappingUnit(Integer mappingId, Integer ratePlanId, Integer spId) {
-        var data = ratePlanZoneRepository.qryRatePlanZoneAndMappingUnit(mappingId, ratePlanId, spId)
-                .stream()
-                .map(qryRatePlanZoneAndMappingUnitMapper::toDto)
-                .toList();
-
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
-    }
 
     @Transactional
     public ResponseEntity<CustomeResponse> deleteRatePlan(Integer ratePlanId) {
