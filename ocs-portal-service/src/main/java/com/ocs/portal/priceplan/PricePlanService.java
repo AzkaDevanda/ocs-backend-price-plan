@@ -427,14 +427,14 @@ public class PricePlanService {
     if (offerVer.getEffDate() != null) {
       if (offerVer.getEffDate().isAfter(dict.getEffDate())) {
         log.warn(":: Effective date must not be after expiry date ::");
-        throw new IllegalArgumentException("Effective date must not be after expiry date.");
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Effective date must not be after expiry date.");
       }
     }
     log.info("expired date " + offerVer.getExpDate());
     if (offerVer.getExpDate() != null && dict.getExpDate() != null) {
       if (offerVer.getExpDate().isAfter(dict.getExpDate())) {
         log.warn(":: ExpDate date 1 must not be after expiry date ::");
-        throw new IllegalArgumentException("Effective date must not be after expiry date.");
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Effective date must not be after expiry date.");
       }
     }
   }
