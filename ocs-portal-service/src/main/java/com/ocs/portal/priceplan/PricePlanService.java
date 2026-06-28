@@ -122,7 +122,7 @@ public class PricePlanService {
     if (offer.isPresent()) {
       // baseResponseDto.setCode(EnumRC.ALREADY_EXIST.getRESPONSE_CODE());
       // baseResponseDto.setMessage(EnumRC.ALREADY_EXIST.getMessage());
-      throw new ValidationHandler(EnumRC.ALREADY_EXIST.getMessage());
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, EnumRC.ALREADY_EXIST.getMessage());
     } else {
       baseResponseDto.setData(addPricePlan(pricePlanRequestDto));
       baseResponseDto.setCode(EnumRC.SUCCESS.getRESPONSE_CODE().toString());
@@ -897,7 +897,7 @@ public class PricePlanService {
         .orElseThrow(() -> new ValidationHandler(EnumRC.NOT_FOUND.getMessage()));
 
     if (!pricePlanRepository.existsById(offer.getId())) {
-      throw new ValidationHandler(EnumRC.NOT_FOUND.getMessage());
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, EnumRC.NOT_FOUND.getMessage());
     } else {
       offerRepository.updateOfferState('X', Long.valueOf(offer.getId()));
     }
