@@ -26,25 +26,7 @@ public class RatePlanController {
     @Autowired
     private RatePlanService ratePlanService;
 
-
     private static final Logger log = LoggerFactory.getLogger(RatePlanController.class);
-
-    @GetMapping("/list")
-    public ResponseEntity<CustomeResponse> getRatePlanByOfferVerId(@RequestParam Integer offerVerId, @RequestParam Integer reId, @RequestParam(required = false) Integer spId, @RequestParam(required = false) String ratePlanName) {
-        return ratePlanService.getRatePlanByOfferVerId(offerVerId, reId, spId, ratePlanName);
-    }
-
-
-    @GetMapping("detail/{id}")
-    public ResponseEntity<BaseResponseDto> getDetailRatePlanById(@Schema(description = "ratePlan id") @PathVariable Integer id) {
-        return ResponseEntity.ok(ratePlanService.getRatePlanById(id));
-    }
-
-    @PutMapping("update/{id}")
-    public ResponseEntity<CustomeResponse> updateRatePlan(@Schema(description = "ratePlan id") @PathVariable Integer id, @Validated @RequestBody UpdateRatePlanDto ratePlanDto) {
-        log.info("::Request updateRatePlan :: {} ", new Gson().toJson(ratePlanDto));
-        return ratePlanService.updateRatePlan(id, ratePlanDto);
-    }
 
 
     @PostMapping("/create")
@@ -65,6 +47,24 @@ public class RatePlanController {
     @PostMapping("mod-re-price-plan")
     public ResponseEntity<CustomeResponse> modRePricePlan(@RequestBody ModRePricePlanDto modRePricePlanDto) {
         return ratePlanService.modRePricePlan(modRePricePlanDto);
+    }
+
+
+    @GetMapping("/list")
+    public ResponseEntity<CustomeResponse> getRatePlanByOfferVerId(@RequestParam Integer offerVerId, @RequestParam Integer reId, @RequestParam(required = false) Integer spId, @RequestParam(required = false) String ratePlanName) {
+        return ratePlanService.getRatePlanByOfferVerId(offerVerId, reId, spId, ratePlanName);
+    }
+
+
+    @GetMapping("detail/{id}")
+    public ResponseEntity<BaseResponseDto> getDetailRatePlanById(@Schema(description = "ratePlan id") @PathVariable Integer id) {
+        return ResponseEntity.ok(ratePlanService.getRatePlanById(id));
+    }
+
+    @PutMapping("update/{id}")
+    public ResponseEntity<CustomeResponse> updateRatePlan(@Schema(description = "ratePlan id") @PathVariable Integer id, @Validated @RequestBody UpdateRatePlanDto ratePlanDto) {
+        log.info("::Request updateRatePlan :: {} ", new Gson().toJson(ratePlanDto));
+        return ratePlanService.updateRatePlan(id, ratePlanDto);
     }
 
 }
