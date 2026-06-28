@@ -34,21 +34,6 @@ public class RatePlanController {
         log.info("::Request addRatePlan :: {} ", new Gson().toJson(ratePlanDto));
         return ResponseEntity.ok(ratePlanService.addRatePlan(ratePlanDto));
     }
-    @PutMapping("/priority")
-    public ResponseEntity<CustomeResponse> updatePriorityRatePlan(@Schema @RequestParam Integer ratePlanId, @RequestParam Integer priority) {
-        return ratePlanService.updatePriorityRatePlan(ratePlanId, priority);
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<CustomeResponse> deleteRatePlan(@Schema(description = "ratePlan id") @PathVariable Integer id) {
-        return ratePlanService.deleteRatePlan(id);
-    }
-
-    @PostMapping("mod-re-price-plan")
-    public ResponseEntity<CustomeResponse> modRePricePlan(@RequestBody ModRePricePlanDto modRePricePlanDto) {
-        return ratePlanService.modRePricePlan(modRePricePlanDto);
-    }
-
 
     @GetMapping("/list")
     public ResponseEntity<CustomeResponse> getRatePlanByOfferVerId(@RequestParam Integer offerVerId, @RequestParam Integer reId, @RequestParam(required = false) Integer spId, @RequestParam(required = false) String ratePlanName) {
@@ -65,6 +50,22 @@ public class RatePlanController {
     public ResponseEntity<CustomeResponse> updateRatePlan(@Schema(description = "ratePlan id") @PathVariable Integer id, @Validated @RequestBody UpdateRatePlanDto ratePlanDto) {
         log.info("::Request updateRatePlan :: {} ", new Gson().toJson(ratePlanDto));
         return ratePlanService.updateRatePlan(id, ratePlanDto);
+    }
+
+
+    @PutMapping("/priority")
+    public ResponseEntity<CustomeResponse> updatePriorityRatePlan(@Schema @RequestParam Integer ratePlanId, @RequestParam Integer priority) {
+        return ratePlanService.updatePriorityRatePlan(ratePlanId, priority);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<CustomeResponse> deleteRatePlan(@Schema(description = "ratePlan id") @PathVariable Integer id) {
+        return ratePlanService.deleteRatePlan(id);
+    }
+
+    @PostMapping("mod-re-price-plan")
+    public ResponseEntity<CustomeResponse> modRePricePlan(@RequestBody ModRePricePlanDto modRePricePlanDto) {
+        return ratePlanService.modRePricePlan(modRePricePlanDto);
     }
 
 }
