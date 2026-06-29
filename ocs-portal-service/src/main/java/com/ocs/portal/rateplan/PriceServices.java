@@ -3,7 +3,6 @@ package com.ocs.portal.rateplan;
 import com.ocs.portal.common.MessageService;
 import com.ocs.portal.constant.HttpStatusConstant;
 import com.ocs.portal.dto.request.ModPricePriorityRequest;
-import com.ocs.portal.dto.request.ReAttrListDto;
 import com.ocs.portal.dto.response.CustomeResponse;
 import com.ocs.portal.entity.EventBenefit;
 import com.ocs.portal.entity.Op;
@@ -68,22 +67,8 @@ public class PriceServices {
     Logger logger = LoggerFactory.getLogger(PriceServices.class);
 
 
-    // TODO : TABLE RefValue DATANYA BERBEDA
-//    private void clearRefValueOfPrice(Long priceId, List<Long> retainedRefValIdList) {
-//        List<Long> refValueIdKeep = new ArrayList<>();
-//        if (retainedRefValIdList != null && !retainedRefValIdList.isEmpty()) {
-//            for (Long id : retainedRefValIdList) {
-//                RefValue refValue = refValueRepository.findById(Math.toIntExact(id)).orElseThrow(() -> new ValidationHandler(EnumRC.NOT_FOUND.getMessage()));
-//                refValueIdKeep.addAll(refValue.getre());
-//            }
-//        }
-//    }
-
-
-
-
     public ResponseEntity<CustomeResponse> getPriceRating(Integer ratePlanId, Integer mappingId, Integer priceVerId, Long priceId,
-                                                          Long priceIdSelf, Integer spId, Integer parentPriceId, Integer srcPriceId, Character shareFlag){
+                                                          Long priceIdSelf, Integer spId, Integer parentPriceId, Integer srcPriceId, Character shareFlag) {
         var data = priceRepository.findPricesByRatePlanId(ratePlanId, mappingId, priceVerId, priceId, priceIdSelf, spId, parentPriceId, srcPriceId, shareFlag)
                 .stream()
                 .map(priceMapper::toDto)
@@ -163,7 +148,7 @@ public class PriceServices {
             addNum = 1;
         }
 
-        int nArr = priceRepository.updatePricePriorityByArr(addNum,beginPriority, endPriority, priceVerId);
+        int nArr = priceRepository.updatePricePriorityByArr(addNum, beginPriority, endPriority, priceVerId);
         int n = priceRepository.updatePricePriority(priceId, newPriority);
 
         Price price = priceRepository.findById(priceId).orElseThrow(() -> new ValidationHandler(EnumRC.NOT_FOUND.getMessage()));
@@ -174,7 +159,7 @@ public class PriceServices {
             throw new ValidationHandler(EnumRC.BAD_REQUEST.getMessage());
         }
 
-        CustomeResponse baseResponseDto = new CustomeResponse(EnumRC.SUCCESS.getRESPONSE_CODE(),EnumRC.SUCCESS.getMessage(),null);
+        CustomeResponse baseResponseDto = new CustomeResponse(EnumRC.SUCCESS.getRESPONSE_CODE(), EnumRC.SUCCESS.getMessage(), null);
 
         return baseResponseDto;
     }
@@ -202,7 +187,7 @@ public class PriceServices {
             addNum = 1;
         }
 
-        int nArr = eventBenefitRepository.updateBenefitPriorityByArr(addNum,beginPriority, endPriority, priceVerId);
+        int nArr = eventBenefitRepository.updateBenefitPriorityByArr(addNum, beginPriority, endPriority, priceVerId);
         //int n = priceRepository.updatePricePriority(priceId, newPriority);
 
         EventBenefit eventBenefit = eventBenefitRepository.findById(priceId.intValue()).orElseThrow(() -> new ValidationHandler("EventBenefit not found"));
@@ -213,7 +198,7 @@ public class PriceServices {
             throw new ValidationHandler(EnumRC.BAD_REQUEST.getMessage());
         }
 
-        CustomeResponse baseResponseDto = new CustomeResponse(EnumRC.SUCCESS.getRESPONSE_CODE(),EnumRC.SUCCESS.getMessage(),null);
+        CustomeResponse baseResponseDto = new CustomeResponse(EnumRC.SUCCESS.getRESPONSE_CODE(), EnumRC.SUCCESS.getMessage(), null);
         return baseResponseDto;
     }
 
@@ -244,7 +229,6 @@ public class PriceServices {
         }
         return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
     }
-
 
 
     @Transactional
@@ -292,7 +276,20 @@ public class PriceServices {
 
     }
 
-//    public ResponseEntity<CustomeResponse> listReAttrForPrice() {
+
+    // TODO : TABLE RefValue DATANYA BERBEDA
+//    private void clearRefValueOfPrice(Long priceId, List<Long> retainedRefValIdList) {
+//        List<Long> refValueIdKeep = new ArrayList<>();
+//        if (retainedRefValIdList != null && !retainedRefValIdList.isEmpty()) {
+//            for (Long id : retainedRefValIdList) {
+//                RefValue refValue = refValueRepository.findById(Math.toIntExact(id)).orElseThrow(() -> new ValidationHandler(EnumRC.NOT_FOUND.getMessage()));
+//                refValueIdKeep.addAll(refValue.getre());
+//            }
+//        }
+//    }
+
+
+    //    public ResponseEntity<CustomeResponse> listReAttrForPrice() {
 //        List<ReAttrListDto> list = reAttrRepository.findReAttrList();
 //
 //        return ResponseEntity.status(HttpStatus.OK)
@@ -309,3 +306,6 @@ public class PriceServices {
 //    }
 
 }
+
+
+
