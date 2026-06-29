@@ -113,277 +113,6 @@ public class RatePlanService {
     private ValidationService validationService;
 
 
-
-    private RefValueFormulaDto buildRefValueFormula (RefValueDto refValueDto){
-        if(refValueDto == null || !"4".equals(refValueDto.getRefValueType()) || StringUtil.isEmpty(refValueDto.getValueString())){
-            return null;
-        }
-        RefValueFormulaDto refValueFormulaDto = new RefValueFormulaDto();
-        logger.debug("formula valueString=[{}], refValueId=[{}]", new Object[] { refValueDto.getValueString(), refValueDto.getRefValueId() });
-        String[] itemArr = StringUtil.findAll(refValueDto.getValueString(),"[\\+\\*\\(\\)/-]|\\d+");
-        if(itemArr != null && itemArr.length > 0){
-            for(String item : itemArr){
-                if(!StringUtil.isEmpty(item)){
-                    if(StringUtil.isNumeric(item.trim())){
-                        refValueFormulaDto.addOperand(qryRefValue(Long.valueOf(item.trim()), Boolean.valueOf(false)));
-                    }
-                    else{
-                        refValueFormulaDto.addOperator(item.trim());
-                    }
-                }
-            }
-        }
-        return  refValueFormulaDto;
-    }
-
-    public RefValueExtendDto qryRefValue(Long refValueId, Boolean ignoreState){
-        RefValueDto refValueDto = qryRefValueDto(refValueId, ignoreState);
-        if(refValueDto == null){
-            log.debug("Fail to find refValue by refValueId=[{}]",new Object(),refValueId);
-        }
-        RefValueExtendDto refValueExtendDto = reservationRuleMapper.refValueExtendDto(refValueDto);
-        if(refValueExtendDto.getRefValueType().equals(4)){
-            RefValueFormulaDto refValueFormulaDto = buildRefValueFormula((RefValueDto) refValueExtendDto);
-            refValueExtendDto.setFormula(refValueFormulaDto);
-        } else {
-            if(refValueExtendDto.getRefValueType().equals(2)){
-                SimpleParamDefineDto simpleParamDefineDto = qrySimpleParamDefineById(Math.toIntExact(refValueExtendDto.getSimpleParamId()));
-                if(simpleParamDefineDto == null){
-                    refValueExtendDto = null;
-                } else{
-                    refValueExtendDto.setParamName(simpleParamDefineDto.getParamName());
-                }
-            } else if(refValueExtendDto.getRefValueType().equals(3)){
-                TableParamDefineDto tableParamDefineDto = qryTableParamDefine(refValueExtendDto.getTableParamId());
-                if(tableParamDefineDto == null){
-                    refValueExtendDto = null;
-                } else{
-                    refValueExtendDto.setParamName(tableParamDefineDto.getParamName());
-                }
-            }
-        }
-        return refValueExtendDto;
-    }
-
-
-    public int delPriceParamByPriceIdAndParamId(Long priceId, Long paramId){
-        if(priceId == null || priceId.longValue() == -1L){
-            return 0;
-        }
-        int refValCnt = qryRefValueCntByPriceAndParam(priceId, paramId);
-        int delCnt = 0;
-        if(refValCnt == 0){
-            logger.debug("current param[id={}] is referenced by [{}] refValue(s) within this price[id={}].", new Object[] { paramId,
-                    Integer.valueOf(refValCnt), priceId });
-            PriceParamDto priceParamDto = qryPriceParamByPriceIdAndParamId(priceId, paramId);
-            if(priceParamDto == null){
-                return  delCnt;
-            }
-            delCnt = priceParamRepository.delPriceParamByPriceIdAndParamId(priceId, paramId);
-        }
-        return delCnt;
-    }
-
-    public int delRatePlanParamByRatePlanIdAndParamId(Long ratePlanId, Long paramId){
-        if(ratePlanId == null){
-            return 0;
-        }
-        int refValCnt = qryRefValueCntByRatePlanAndParam(ratePlanId, paramId);
-        int delCnt = 0;
-        if(refValCnt == 0){
-            RatePlanParamDto ratePlanParamDto = qryRatePlanParamByRatePlanIdAndParamId(ratePlanId, paramId);
-            if(ratePlanParamDto == null){
-                return delCnt;
-            }
-            delCnt = ratePlanParamRepository.delRatePlanParamByRatePlanIdAndParamId(ratePlanId, paramId);
-        }
-        return  delCnt;
-    }
-
-    public int delPricePlanParamByOfferVerIdAndParamId(Long offerVerId, Long paramId){
-        int refValCnt = qryRefValueCntByOfferVerAndParam(offerVerId, paramId);
-        int delCnt = 0;
-        if(refValCnt == 0){
-            PricePlanParamDto pricePlanParamDto = qryPricePlanParamByOfferVerAndParamId(offerVerId, paramId);
-            if(pricePlanParamDto == null){
-                return delCnt;
-            }
-            delCnt = pricePlanParamRepository.delByOfferVerIdAndParamId(offerVerId, paramId);
-        }
-        return delCnt;
-    }
-
-    public PriceParamDto qryPriceParamByPriceIdAndParamId(Long priceId, Long paramId){
-        PriceParamDto[] priceParamDtos = priceParamRepository.qryPriceParam(priceId, paramId);
-        PriceParamDto targetParam = null;
-        if(priceParamDtos != null && priceParamDtos.length > 0){
-            targetParam = priceParamDtos[0];
-        }
-        return targetParam;
-    }
-
-    public RatePlanParamDto qryRatePlanParamByRatePlanIdAndParamId(Long ratePlanId, Long paramId){
-        RatePlanParamDto[] ratePlanParamDtos = ratePlanParamRepository.qryRatePlanParam(ratePlanId, paramId);
-        RatePlanParamDto targetParam = null;
-        if(ratePlanParamDtos != null && ratePlanParamDtos.length > 0){
-            targetParam = ratePlanParamDtos[0];
-        }
-        return  targetParam;
-    }
-
-    public PricePlanParamDto qryPricePlanParamByOfferVerAndParamId(Long offerVerId, Long paramId){
-        PricePlanParamDto[] pricePlanParamDtos = pricePlanParamRepository.qryPricePlanParam(offerVerId, paramId);
-        PricePlanParamDto targetParam = null;
-        if(pricePlanParamDtos != null && pricePlanParamDtos.length > 0){
-            targetParam = pricePlanParamDtos[0];
-        }
-        return targetParam;
-    }
-
-    public int qryRefValueCntByPriceAndParam(Long priceId, Long paramId){
-        int cnt = 0;
-        if (priceId == null || paramId == null)
-            return cnt;
-        RefValueDto[] refValueList = refValueRepository.qryRefValueByParamIdAndPriceId(paramId, priceId);
-        if (refValueList != null && refValueList.length > 0)
-            for (RefValueDto item : refValueList) {
-                if (!"X".equals(item.getState()))
-                    cnt++;
-            }
-        return cnt;
-    }
-
-    public int qryRefValueCntByRatePlanAndParam(Long ratePlanId, Long paramId){
-        int cnt = 0;
-        if (ratePlanId == null || paramId == null)
-            return cnt;
-        RefValueDto[] refValueList = refValueRepository.qryRefValueByParamIdAndRatePlanId(paramId, ratePlanId);
-        if (refValueList != null && refValueList.length > 0)
-            for (RefValueDto item : refValueList) {
-                if (!"X".equals(item.getState()))
-                    cnt++;
-            }
-        return cnt;
-    }
-
-    public int qryRefValueCntByOfferVerAndParam(Long offerVerId, Long paramId){
-        int cnt = 0;
-        if (offerVerId == null || paramId == null)
-            return cnt;
-        RefValueDto[] refValueList = refValueRepository.qryRefValueByParamIdAndOfferVerId(paramId, offerVerId);
-        if (refValueList != null && refValueList.length > 0)
-            for (RefValueDto item : refValueList) {
-                if (!"X".equals(item.getState()))
-                    cnt++;
-            }
-        return cnt;
-    }
-
-    public int delRefValueToOfferVerRelation(Long offerVerId, Long refValueId){
-        logger.debug("delRefValueToOfferVerRelation, offerVerId=[{}], refValueId=[{}]", new Object[] { offerVerId, refValueId });
-        return refValueToOfferVerRepository.delRefValueToOfferVer(refValueId, offerVerId);
-    }
-
-    public void updateParamRelationOnDelRefValue(RefValueDto refValueDto){
-        if(refValueDto == null){
-            return;
-        }
-        Long paramId = null;
-        if(refValueDto.getRefValueType().equals(2)){
-            paramId = refValueDto.getSimpleParamId();
-        } else if(refValueDto.getRefValueType().equals(3)){
-            paramId = refValueDto.getTableParamId();
-        }
-        if(paramId == null){
-            logger.debug("deleted refValue does not refer to any param.");
-            return;
-        }
-        delPriceParamByPriceIdAndParamId(refValueDto.getSimpleParamId(), paramId);
-        delRatePlanParamByRatePlanIdAndParamId(refValueDto.getRatePlanId(), paramId);
-        delPricePlanParamByOfferVerIdAndParamId(refValueDto.getOfferVerId(), paramId);
-    }
-
-    public int updateOfferVerRelationOnDelRefValue(RefValueDto refValueDto){
-        if(refValueDto == null){
-            logger.debug("inputed refValueDto is null, exit.");
-            return 0;
-        }
-        return delRefValueToOfferVerRelation(null, refValueDto.getRefValueId());
-    }
-
-    public int delRefValueDto(Long refValueId){
-        RefValueDto oldRefValueDto = qryRefValueDto(refValueId, false);
-        if(oldRefValueDto == null){
-            return 0;
-        }
-        int cnt = refValueRepository.updateState(refValueId,"X");
-        updateParamRelationOnDelRefValue(oldRefValueDto);
-        updateOfferVerRelationOnDelRefValue(oldRefValueDto);
-        return cnt;
-    }
-
-    private void cascadeDelRefValueInFormula(RefValueFormulaDto formula){
-        if(formula == null){
-            return;
-        }
-        List<RefValueExtendDto> refValueExtendDto = formula.getAllLevelRefValueInFormula();
-        for(RefValueExtendDto refVal : refValueExtendDto){
-            delRefValueDto(refVal.getRefValueId());
-        }
-    }
-
-    public void delRefValue (Long refValueId){
-        RefValueExtendDto oldRefValue = qryRefValue(refValueId, false);
-        if(oldRefValue == null){
-            logger.debug("RefValue by refValueId=[{}] does not exist.", new Object[] { refValueId });
-            return;
-        }
-        if(oldRefValue.getRefValueType().equals(4)){
-            RefValueFormulaDto refValueFormulaDto = oldRefValue.getFormula();
-            cascadeDelRefValueInFormula(refValueFormulaDto);
-        }
-        delRefValueDto(refValueId);
-    }
-
-
-
-    @Transactional(rollbackFor =  Exception.class)
-    public ResponseEntity<CustomeResponse> modRePricePlan(ModRePricePlanDto modRePricePlanDto){
-        Optional<ModRePricePlanProjection> modRePricePlanProjection = rePricePlanRepository.findByReIdAndOfferVerId(modRePricePlanDto.getReId(), modRePricePlanDto.getOfferVerId());
-
-        if(!modRePricePlanProjection.isEmpty() && modRePricePlanProjection != null){
-            String oldRuleScript = modRePricePlanDto.getRuleScript();
-            if(oldRuleScript != null){
-                String refValIdPatter = "(?<=r.event.GetValueByRefID\\()\\d+(?=\\))";
-                String[] refValIdStrArr = StringUtil.findAll(oldRuleScript, refValIdPatter);
-                if(refValIdStrArr != null && refValIdStrArr.length > 0){
-                    Long refValueId = null;
-                    for (String refValueIdStr : refValIdStrArr) {
-                        refValueId = Long.valueOf(refValueIdStr);
-                        delRefValue(refValueId);
-                    }
-                }
-            }
-        }
-        if(modRePricePlanProjection == null){
-            RePricePlan rePricePlan = reservationRuleMapper.toEntityRePricePlan(modRePricePlanDto);
-            rePricePlanRepository.save(rePricePlan);
-        } else{
-            RePricePlan rePricePlan = rePricePlanRepository.findById_ReIdAndId_OfferVerId(modRePricePlanDto.getReId(), modRePricePlanDto.getOfferVerId()).orElseThrow(() -> new ValidationHandler("RE_PRICE_PLAN not found"));;
-            reservationRuleMapper.updateEntityRePricePlan(modRePricePlanDto, rePricePlan);
-            rePricePlanRepository.save(rePricePlan);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
-    }
-
-
-
-
-
-
-
-
-
     @Transactional
     public BaseResponseDto addRatePlan(RatePlanDto ratePlanDto) {
         BaseResponseDto baseResponseDto = new BaseResponseDto();
@@ -529,11 +258,306 @@ public class RatePlanService {
 
     public RefValueDto qryRefValueDto (Long refValueId, Boolean ignoreState){
         RefValueDto refValueDto = refValueRepository.qryRefValue(refValueId);
+
         if(refValueDto != null && (ignoreState.booleanValue() || refValueDto.getState().equals("A"))){
             return refValueDto;
         }
         return null;
     }
+
+    private RefValueFormulaDto buildRefValueFormula (RefValueDto refValueDto){
+        if(refValueDto == null || !"4".equals(refValueDto.getRefValueType()) || StringUtil.isEmpty(refValueDto.getValueString())){
+            return null;
+        }
+
+        RefValueFormulaDto refValueFormulaDto = new RefValueFormulaDto();
+        logger.debug("formula valueString=[{}], refValueId=[{}]", new Object[] { refValueDto.getValueString(), refValueDto.getRefValueId() });
+        String[] itemArr = StringUtil.findAll(refValueDto.getValueString(),"[\\+\\*\\(\\)/-]|\\d+");
+        if(itemArr != null && itemArr.length > 0){
+            for(String item : itemArr){
+
+                if(!StringUtil.isEmpty(item)){
+                    if(StringUtil.isNumeric(item.trim())){
+                        refValueFormulaDto.addOperand(qryRefValue(Long.valueOf(item.trim()), Boolean.valueOf(false)));
+                    }
+                    else{
+                        refValueFormulaDto.addOperator(item.trim());
+                    }
+                }
+            }
+        }
+        return  refValueFormulaDto;
+    }
+
+    public RefValueExtendDto qryRefValue(Long refValueId, Boolean ignoreState){
+        RefValueDto refValueDto = qryRefValueDto(refValueId, ignoreState);
+        if(refValueDto == null){
+            log.debug("Fail to find refValue by refValueId=[{}]",new Object(),refValueId);
+        }
+
+        RefValueExtendDto refValueExtendDto = reservationRuleMapper.refValueExtendDto(refValueDto);
+
+        if(refValueExtendDto.getRefValueType().equals(4)){
+            RefValueFormulaDto refValueFormulaDto = buildRefValueFormula((RefValueDto) refValueExtendDto);
+            refValueExtendDto.setFormula(refValueFormulaDto);
+
+        } else {
+            if(refValueExtendDto.getRefValueType().equals(2)){
+                SimpleParamDefineDto simpleParamDefineDto = qrySimpleParamDefineById(Math.toIntExact(refValueExtendDto.getSimpleParamId()));
+                if(simpleParamDefineDto == null){
+                    refValueExtendDto = null;
+                } else{
+                    refValueExtendDto.setParamName(simpleParamDefineDto.getParamName());
+                }
+            } else if(refValueExtendDto.getRefValueType().equals(3)){
+                TableParamDefineDto tableParamDefineDto = qryTableParamDefine(refValueExtendDto.getTableParamId());
+                if(tableParamDefineDto == null){
+                    refValueExtendDto = null;
+                } else{
+                    refValueExtendDto.setParamName(tableParamDefineDto.getParamName());
+                }
+            }
+        }
+
+        return refValueExtendDto;
+    }
+
+
+    public int delPriceParamByPriceIdAndParamId(Long priceId, Long paramId){
+        if(priceId == null || priceId.longValue() == -1L){
+            return 0;
+        }
+
+        int refValCnt = qryRefValueCntByPriceAndParam(priceId, paramId);
+        int delCnt = 0;
+        if(refValCnt == 0){
+            logger.debug("current param[id={}] is referenced by [{}] refValue(s) within this price[id={}].", new Object[] { paramId,
+                    Integer.valueOf(refValCnt), priceId });
+            PriceParamDto priceParamDto = qryPriceParamByPriceIdAndParamId(priceId, paramId);
+            if(priceParamDto == null){
+                return  delCnt;
+            }
+            delCnt = priceParamRepository.delPriceParamByPriceIdAndParamId(priceId, paramId);
+        }
+        return delCnt;
+    }
+
+    public int delRatePlanParamByRatePlanIdAndParamId(Long ratePlanId, Long paramId){
+        if(ratePlanId == null){
+            return 0;
+        }
+
+        int refValCnt = qryRefValueCntByRatePlanAndParam(ratePlanId, paramId);
+        int delCnt = 0;
+        if(refValCnt == 0){
+            RatePlanParamDto ratePlanParamDto = qryRatePlanParamByRatePlanIdAndParamId(ratePlanId, paramId);
+            if(ratePlanParamDto == null){
+                return delCnt;
+            }
+            delCnt = ratePlanParamRepository.delRatePlanParamByRatePlanIdAndParamId(ratePlanId, paramId);
+        }
+        return  delCnt;
+    }
+
+    public int delPricePlanParamByOfferVerIdAndParamId(Long offerVerId, Long paramId){
+        int refValCnt = qryRefValueCntByOfferVerAndParam(offerVerId, paramId);
+        int delCnt = 0;
+
+        if(refValCnt == 0){
+            PricePlanParamDto pricePlanParamDto = qryPricePlanParamByOfferVerAndParamId(offerVerId, paramId);
+            if(pricePlanParamDto == null){
+                return delCnt;
+            }
+            delCnt = pricePlanParamRepository.delByOfferVerIdAndParamId(offerVerId, paramId);
+        }
+        return delCnt;
+    }
+
+    public PriceParamDto qryPriceParamByPriceIdAndParamId(Long priceId, Long paramId){
+        PriceParamDto[] priceParamDtos = priceParamRepository.qryPriceParam(priceId, paramId);
+
+        PriceParamDto targetParam = null;
+
+        if(priceParamDtos != null && priceParamDtos.length > 0){
+            targetParam = priceParamDtos[0];
+        }
+        return targetParam;
+    }
+
+    public RatePlanParamDto qryRatePlanParamByRatePlanIdAndParamId(Long ratePlanId, Long paramId){
+        RatePlanParamDto[] ratePlanParamDtos = ratePlanParamRepository.qryRatePlanParam(ratePlanId, paramId);
+
+        RatePlanParamDto targetParam = null;
+
+        if(ratePlanParamDtos != null && ratePlanParamDtos.length > 0){
+            targetParam = ratePlanParamDtos[0];
+        }
+        return  targetParam;
+    }
+
+    public PricePlanParamDto qryPricePlanParamByOfferVerAndParamId(Long offerVerId, Long paramId){
+        PricePlanParamDto[] pricePlanParamDtos = pricePlanParamRepository.qryPricePlanParam(offerVerId, paramId);
+
+        PricePlanParamDto targetParam = null;
+
+        if(pricePlanParamDtos != null && pricePlanParamDtos.length > 0){
+            targetParam = pricePlanParamDtos[0];
+        }
+        return targetParam;
+    }
+
+    public int qryRefValueCntByPriceAndParam(Long priceId, Long paramId){
+        int cnt = 0;
+        if (priceId == null || paramId == null)
+            return cnt;
+        RefValueDto[] refValueList = refValueRepository.qryRefValueByParamIdAndPriceId(paramId, priceId);
+
+        if (refValueList != null && refValueList.length > 0)
+            for (RefValueDto item : refValueList) {
+                if (!"X".equals(item.getState()))
+                    cnt++;
+            }
+        return cnt;
+    }
+
+    public int qryRefValueCntByRatePlanAndParam(Long ratePlanId, Long paramId){
+        int cnt = 0;
+        if (ratePlanId == null || paramId == null)
+            return cnt;
+
+        RefValueDto[] refValueList = refValueRepository.qryRefValueByParamIdAndRatePlanId(paramId, ratePlanId);
+        if (refValueList != null && refValueList.length > 0)
+            for (RefValueDto item : refValueList) {
+                if (!"X".equals(item.getState()))
+                    cnt++;
+            }
+        return cnt;
+    }
+
+    public int qryRefValueCntByOfferVerAndParam(Long offerVerId, Long paramId){
+        int cnt = 0;
+        if (offerVerId == null || paramId == null)
+            return cnt;
+
+        RefValueDto[] refValueList = refValueRepository.qryRefValueByParamIdAndOfferVerId(paramId, offerVerId);
+
+        if (refValueList != null && refValueList.length > 0)
+            for (RefValueDto item : refValueList) {
+                if (!"X".equals(item.getState()))
+                    cnt++;
+            }
+        return cnt;
+    }
+
+    public int delRefValueToOfferVerRelation(Long offerVerId, Long refValueId){
+        logger.debug("delRefValueToOfferVerRelation, offerVerId=[{}], refValueId=[{}]", new Object[] { offerVerId, refValueId });
+
+        return refValueToOfferVerRepository.delRefValueToOfferVer(refValueId, offerVerId);
+    }
+
+    public void updateParamRelationOnDelRefValue(RefValueDto refValueDto){
+        if(refValueDto == null){
+            return;
+        }
+        Long paramId = null;
+
+        if(refValueDto.getRefValueType().equals(2)){
+            paramId = refValueDto.getSimpleParamId();
+
+        } else if(refValueDto.getRefValueType().equals(3)){
+            paramId = refValueDto.getTableParamId();
+
+        }
+        if(paramId == null){
+            logger.debug("deleted refValue does not refer to any param.");
+            return;
+        }
+        delPriceParamByPriceIdAndParamId(refValueDto.getSimpleParamId(), paramId);
+        delRatePlanParamByRatePlanIdAndParamId(refValueDto.getRatePlanId(), paramId);
+        delPricePlanParamByOfferVerIdAndParamId(refValueDto.getOfferVerId(), paramId);
+    }
+
+    public int updateOfferVerRelationOnDelRefValue(RefValueDto refValueDto){
+        if(refValueDto == null){
+            logger.debug("inputed refValueDto is null, exit.");
+            return 0;
+        }
+        return delRefValueToOfferVerRelation(null, refValueDto.getRefValueId());
+    }
+
+    public int delRefValueDto(Long refValueId){
+        RefValueDto oldRefValueDto = qryRefValueDto(refValueId, false);
+        if(oldRefValueDto == null){
+            return 0;
+        }
+        int cnt = refValueRepository.updateState(refValueId,"X");
+
+        updateParamRelationOnDelRefValue(oldRefValueDto);
+        updateOfferVerRelationOnDelRefValue(oldRefValueDto);
+
+        return cnt;
+    }
+
+    private void cascadeDelRefValueInFormula(RefValueFormulaDto formula){
+        if(formula == null){
+            return;
+        }
+        List<RefValueExtendDto> refValueExtendDto = formula.getAllLevelRefValueInFormula();
+        for(RefValueExtendDto refVal : refValueExtendDto){
+            delRefValueDto(refVal.getRefValueId());
+        }
+    }
+
+    public void delRefValue (Long refValueId){
+        RefValueExtendDto oldRefValue = qryRefValue(refValueId, false);
+        if(oldRefValue == null){
+            logger.debug("RefValue by refValueId=[{}] does not exist.", new Object[] { refValueId });
+            return;
+        }
+        if(oldRefValue.getRefValueType().equals(4)){
+            RefValueFormulaDto refValueFormulaDto = oldRefValue.getFormula();
+            cascadeDelRefValueInFormula(refValueFormulaDto);
+        }
+        delRefValueDto(refValueId);
+    }
+
+
+
+    @Transactional(rollbackFor =  Exception.class)
+    public ResponseEntity<CustomeResponse> modRePricePlan(ModRePricePlanDto modRePricePlanDto){
+        Optional<ModRePricePlanProjection> modRePricePlanProjection = rePricePlanRepository.findByReIdAndOfferVerId(modRePricePlanDto.getReId(), modRePricePlanDto.getOfferVerId());
+
+        if(!modRePricePlanProjection.isEmpty() && modRePricePlanProjection != null){
+            String oldRuleScript = modRePricePlanDto.getRuleScript();
+            if(oldRuleScript != null){
+                String refValIdPatter = "(?<=r.event.GetValueByRefID\\()\\d+(?=\\))";
+                String[] refValIdStrArr = StringUtil.findAll(oldRuleScript, refValIdPatter);
+                if(refValIdStrArr != null && refValIdStrArr.length > 0){
+                    Long refValueId = null;
+                    for (String refValueIdStr : refValIdStrArr) {
+                        refValueId = Long.valueOf(refValueIdStr);
+                        delRefValue(refValueId);
+                    }
+                }
+            }
+        }
+
+        if(modRePricePlanProjection == null){
+            RePricePlan rePricePlan = reservationRuleMapper.toEntityRePricePlan(modRePricePlanDto);
+            rePricePlanRepository.save(rePricePlan);
+        } else{
+            RePricePlan rePricePlan = rePricePlanRepository.findById_ReIdAndId_OfferVerId(modRePricePlanDto.getReId(), modRePricePlanDto.getOfferVerId()).orElseThrow(() -> new ValidationHandler("RE_PRICE_PLAN not found"));;
+            reservationRuleMapper.updateEntityRePricePlan(modRePricePlanDto, rePricePlan);
+            rePricePlanRepository.save(rePricePlan);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
+    }
+
+
+
+
+
+
 
 
 }
