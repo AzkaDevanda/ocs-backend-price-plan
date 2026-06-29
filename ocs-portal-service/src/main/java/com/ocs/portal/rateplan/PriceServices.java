@@ -78,91 +78,21 @@ public class PriceServices {
 //            }
 //        }
 //    }
-    @Transactional
-    public ResponseEntity<CustomeResponse> deleteAcm(Integer priceId, Integer priceVerId) {
 
-        List<RefValue> refValues = refValueRepository.findByPriceId(Long.valueOf(priceId));
-        if (refValues.isEmpty()) {
-            throw new ValidationHandler(EnumRC.NOT_FOUND.getMessage());
-        }
 
-        for (RefValue refValue : refValues) {
-            refValue.setState('X');
-        }
-        refValueRepository.saveAll(refValues);
 
-        acmRepository.deleteAcmRefByPriceVerId(priceVerId);
-        acmRepository.deleteAcmRuleByPriceVerId(priceVerId);
-        acmRepository.deleteAcmTimeSpanByPriceVerId(priceVerId);
-        acmRepository.deleteAcmByPriceVerId(priceVerId);
 
-        if (priceVerId != null) {
-            int priceCount = priceRepository.selectPriceCountByPriceVer(priceVerId);
-            if (priceCount == 0) {
-                priceVerRepository.deleteById(priceVerId);
-            }
-        }
+    public ResponseEntity<CustomeResponse> getPriceRating(Integer ratePlanId, Integer mappingId, Integer priceVerId, Long priceId,
+                                                          Long priceIdSelf, Integer spId, Integer parentPriceId, Integer srcPriceId, Character shareFlag){
+        var data = priceRepository.findPricesByRatePlanId(ratePlanId, mappingId, priceVerId, priceId, priceIdSelf, spId, parentPriceId, srcPriceId, shareFlag)
+                .stream()
+                .map(priceMapper::toDto)
+                .toList();
 
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
     }
-
-
-
-    @Transactional
-    public ResponseEntity<CustomeResponse> deleteBenefit(Integer priceId, Integer priceVerId, Integer subBalTypeId) {
-        List<RefValue> refValues = refValueRepository.findByPriceId(Long.valueOf(priceId));
-        if (refValues.isEmpty()) {
-            throw new ValidationHandler(EnumRC.NOT_FOUND.getMessage());
-        }
-
-        for (RefValue refValue : refValues) {
-            refValue.setState('X');
-        }
-        refValueRepository.saveAll(refValues);
-
-        priceTemplateMappingReRepository.deleteByPriceId(priceId);
-        priceCatalogElementRepository.deletePriceCatalogElementByPriceId(priceId);
-        reEbMappingPriceRepository.deleteReEbMappingBranchByPriceId(priceId);
-        Optional<EventBenefit> eventBenefit = eventBenefitRepository.findById(priceId);
-        if (eventBenefit.isPresent()) {
-            eventBenefitRepository.deleteById(priceId);
-        }
-
-        if (priceVerId != null) {
-            int priceCount = eventBenefitRepository.selectPriceCountByPriceVer(priceVerId);
-            if (priceCount == 0) {
-                priceVerRepository.deleteById(priceVerId);
-            }
-        }
-
-        if (subBalTypeRepository.isReferencedInAcmBenefit(subBalTypeId).isPresent()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CustomeResponse(403,
-                    HttpStatusConstant.BAD_REQUEST_MESSAGE, messageService.getMessage("S-PRD-01033")));
-        }
-
-        if (subBalTypeRepository.isReferencedInBalBenefit(subBalTypeId).isPresent()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CustomeResponse(403, messageService.getMessage("S-PRD-01034"), null));
-        }
-
-        if (subBalTypeRepository.isReferencedInEventBenefit(subBalTypeId).isPresent()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CustomeResponse(403, messageService.getMessage("S-PRD-01035"), null));
-        }
-
-        if (subBalTypeRepository.isReferencedInSubBalTypeLimit(subBalTypeId).isPresent()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CustomeResponse(403, messageService.getMessage("S-PRD-01036"), null));
-        }
-
-        subBalTypeRepository.deleteBySubBalType(subBalTypeId);
-
-
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
-
-    }
-
-
-
-
-
 
 
     @Transactional
@@ -207,25 +137,6 @@ public class PriceServices {
             }
         }
         return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
-    }
-
-
-
-
-
-
-
-
-    public ResponseEntity<CustomeResponse> getPriceRating(Integer ratePlanId, Integer mappingId, Integer priceVerId, Long priceId,
-                                                          Long priceIdSelf, Integer spId, Integer parentPriceId, Integer srcPriceId, Character shareFlag){
-        var data = priceRepository.findPricesByRatePlanId(ratePlanId, mappingId, priceVerId, priceId, priceIdSelf, spId, parentPriceId, srcPriceId, shareFlag)
-                .stream()
-                .map(priceMapper::toDto)
-                .toList();
-
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
     }
 
 
@@ -304,6 +215,81 @@ public class PriceServices {
 
         CustomeResponse baseResponseDto = new CustomeResponse(EnumRC.SUCCESS.getRESPONSE_CODE(),EnumRC.SUCCESS.getMessage(),null);
         return baseResponseDto;
+    }
+
+
+    @Transactional
+    public ResponseEntity<CustomeResponse> deleteAcm(Integer priceId, Integer priceVerId) {
+        List<RefValue> refValues = refValueRepository.findByPriceId(Long.valueOf(priceId));
+        if (refValues.isEmpty()) {
+            throw new ValidationHandler(EnumRC.NOT_FOUND.getMessage());
+        }
+
+        for (RefValue refValue : refValues) {
+            refValue.setState('X');
+        }
+
+        refValueRepository.saveAll(refValues);
+
+        acmRepository.deleteAcmRefByPriceVerId(priceVerId);
+        acmRepository.deleteAcmRuleByPriceVerId(priceVerId);
+        acmRepository.deleteAcmTimeSpanByPriceVerId(priceVerId);
+        acmRepository.deleteAcmByPriceVerId(priceVerId);
+
+        if (priceVerId != null) {
+            int priceCount = priceRepository.selectPriceCountByPriceVer(priceVerId);
+            if (priceCount == 0) {
+                priceVerRepository.deleteById(priceVerId);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
+    }
+
+
+
+    @Transactional
+    public ResponseEntity<CustomeResponse> deleteBenefit(Integer priceId, Integer priceVerId, Integer subBalTypeId) {
+        List<RefValue> refValues = refValueRepository.findByPriceId(Long.valueOf(priceId));
+        if (refValues.isEmpty()) {
+            throw new ValidationHandler(EnumRC.NOT_FOUND.getMessage());
+        }
+        for (RefValue refValue : refValues) {
+            refValue.setState('X');
+        }
+        refValueRepository.saveAll(refValues);
+
+        priceTemplateMappingReRepository.deleteByPriceId(priceId);
+        priceCatalogElementRepository.deletePriceCatalogElementByPriceId(priceId);
+        reEbMappingPriceRepository.deleteReEbMappingBranchByPriceId(priceId);
+        Optional<EventBenefit> eventBenefit = eventBenefitRepository.findById(priceId);
+        if (eventBenefit.isPresent()) {
+            eventBenefitRepository.deleteById(priceId);
+        }
+
+        if (priceVerId != null) {
+            int priceCount = eventBenefitRepository.selectPriceCountByPriceVer(priceVerId);
+            if (priceCount == 0) {
+                priceVerRepository.deleteById(priceVerId);
+            }
+        }
+        if (subBalTypeRepository.isReferencedInAcmBenefit(subBalTypeId).isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CustomeResponse(403,
+                    HttpStatusConstant.BAD_REQUEST_MESSAGE, messageService.getMessage("S-PRD-01033")));
+        }
+        if (subBalTypeRepository.isReferencedInBalBenefit(subBalTypeId).isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CustomeResponse(403, messageService.getMessage("S-PRD-01034"), null));
+        }
+        if (subBalTypeRepository.isReferencedInEventBenefit(subBalTypeId).isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CustomeResponse(403, messageService.getMessage("S-PRD-01035"), null));
+        }
+        if (subBalTypeRepository.isReferencedInSubBalTypeLimit(subBalTypeId).isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CustomeResponse(403, messageService.getMessage("S-PRD-01036"), null));
+        }
+
+        subBalTypeRepository.deleteBySubBalType(subBalTypeId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
+
     }
 
 //    public ResponseEntity<CustomeResponse> listReAttrForPrice() {
