@@ -27,7 +27,13 @@ import java.util.Optional;
 public class PriceServices {
 
     @Autowired
-    private PriceRepository priceRepository;
+    private AcmRepository acmRepository;
+    @Autowired
+    private AcmRuleRepository acmRuleRepository;
+    @Autowired
+    private AcmRefRepository acmRefRepository;
+    @Autowired
+    private AcmTimeSpanRepository acmTimeSpanRepository;
     @Autowired
     private PriceVerRepository priceVerRepository;
     @Autowired
@@ -49,17 +55,11 @@ public class PriceServices {
     @Autowired
     private EventBenefitRepository eventBenefitRepository;
     @Autowired
-    private AcmRepository acmRepository;
-    @Autowired
-    private AcmRuleRepository acmRuleRepository;
-    @Autowired
-    private AcmRefRepository acmRefRepository;
-    @Autowired
-    private AcmTimeSpanRepository acmTimeSpanRepository;
-    @Autowired
     private ReEbMappingPriceRepository reEbMappingPriceRepository;
     @Autowired
     private SubBalTypeRepository subBalTypeRepository;
+    @Autowired
+    private PriceRepository priceRepository;
     @Autowired
     private MessageService messageService;
     @Autowired
@@ -67,21 +67,6 @@ public class PriceServices {
 
     Logger logger = LoggerFactory.getLogger(PriceServices.class);
 
-//    public ResponseEntity<CustomeResponse> listReAttrForPrice() {
-//        List<ReAttrListDto> list = reAttrRepository.findReAttrList();
-//
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, list));
-//    }
-//
-//    public ResponseEntity<CustomeResponse> listReAttrMapping(Character reAttrType, String reAttrName, Integer spId) {
-//        var data = reAttrRepository.qryReAttrByReAttrType(reAttrType, reAttrName, spId)
-//                .stream()
-//                .map(reAttrMapper::toDto)
-//                .toList();
-//
-//        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
-//    }
 
     @Transactional
     public ResponseEntity<CustomeResponse> deletePrice(Integer priceId, Integer priceVerId, Character reType) {
@@ -168,6 +153,8 @@ public class PriceServices {
 
         return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
     }
+
+
 
     @Transactional
     public ResponseEntity<CustomeResponse> deleteBenefit(Integer priceId, Integer priceVerId, Integer subBalTypeId) {
@@ -310,5 +297,21 @@ public class PriceServices {
         CustomeResponse baseResponseDto = new CustomeResponse(EnumRC.SUCCESS.getRESPONSE_CODE(),EnumRC.SUCCESS.getMessage(),null);
         return baseResponseDto;
     }
+
+//    public ResponseEntity<CustomeResponse> listReAttrForPrice() {
+//        List<ReAttrListDto> list = reAttrRepository.findReAttrList();
+//
+//        return ResponseEntity.status(HttpStatus.OK)
+//                .body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, list));
+//    }
+//
+//    public ResponseEntity<CustomeResponse> listReAttrMapping(Character reAttrType, String reAttrName, Integer spId) {
+//        var data = reAttrRepository.qryReAttrByReAttrType(reAttrType, reAttrName, spId)
+//                .stream()
+//                .map(reAttrMapper::toDto)
+//                .toList();
+//
+//        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
+//    }
 
 }
