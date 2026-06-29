@@ -1,9 +1,9 @@
-package com.ocs.portal.pricever;
-
+package com.ocs.portal.rateplan;
 
 import com.ocs.portal.common.MessageService;
 import com.ocs.portal.constant.HttpStatusConstant;
 import com.ocs.portal.dto.request.ModPricePriorityRequest;
+import com.ocs.portal.dto.request.ReAttrListDto;
 import com.ocs.portal.dto.response.CustomeResponse;
 import com.ocs.portal.entity.EventBenefit;
 import com.ocs.portal.entity.Op;
@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-
 @Service
 public class PriceServices {
 
@@ -68,82 +67,21 @@ public class PriceServices {
 
     Logger logger = LoggerFactory.getLogger(PriceServices.class);
 
-    @Transactional
-    public CustomeResponse modifyPricePriority(ModPricePriorityRequest modPricePriorityRequest) {
-        Long priceId = modPricePriorityRequest.getPriceId();
-        Integer oldPriority = modPricePriorityRequest.getOldPriority();
-        Integer newPriority = modPricePriorityRequest.getNewPriority();
-        Integer priceVerId = modPricePriorityRequest.getPriceVerId();
-
-        if (oldPriority.equals(newPriority)) {
-            throw new ValidationHandler(EnumRC.BAD_REQUEST.getMessage());
-        }
-
-        int beginPriority, endPriority, addNum;
-
-        if (oldPriority < newPriority) {
-            beginPriority = oldPriority + 1;
-            endPriority = newPriority;
-            addNum = -1;
-        } else {
-            beginPriority = newPriority;
-            endPriority = oldPriority - 1;
-            addNum = 1;
-        }
-
-        int nArr = priceRepository.updatePricePriorityByArr(addNum,beginPriority, endPriority, priceVerId);
-        int n = priceRepository.updatePricePriority(priceId, newPriority);
-
-        Price price = priceRepository.findById(priceId).orElseThrow(() -> new ValidationHandler(EnumRC.NOT_FOUND.getMessage()));
-        price.setPriority(newPriority);
-        priceRepository.save(price);
-
-        if (nArr < 0 && n != 1) {
-            throw new ValidationHandler(EnumRC.BAD_REQUEST.getMessage());
-        }
-
-        CustomeResponse baseResponseDto = new CustomeResponse(EnumRC.SUCCESS.getRESPONSE_CODE(),EnumRC.SUCCESS.getMessage(),null);
-
-        return baseResponseDto;
-    }
-
-    @Transactional
-    public CustomeResponse modifyBenefitPriority(ModPricePriorityRequest modPricePriorityRequest) {
-        Long priceId = modPricePriorityRequest.getPriceId();
-        Integer oldPriority = modPricePriorityRequest.getOldPriority();
-        Integer newPriority = modPricePriorityRequest.getNewPriority();
-        Integer priceVerId = modPricePriorityRequest.getPriceVerId();
-
-        if (oldPriority.equals(newPriority)) {
-            throw new ValidationHandler(EnumRC.BAD_REQUEST.getMessage());
-        }
-
-        int beginPriority, endPriority, addNum;
-
-        if (oldPriority < newPriority) {
-            beginPriority = oldPriority + 1;
-            endPriority = newPriority;
-            addNum = -1;
-        } else {
-            beginPriority = newPriority;
-            endPriority = oldPriority - 1;
-            addNum = 1;
-        }
-
-        int nArr = eventBenefitRepository.updateBenefitPriorityByArr(addNum,beginPriority, endPriority, priceVerId);
-        //int n = priceRepository.updatePricePriority(priceId, newPriority);
-
-        EventBenefit eventBenefit = eventBenefitRepository.findById(priceId.intValue()).orElseThrow(() -> new ValidationHandler("EventBenefit not found"));
-        eventBenefit.setPriority(newPriority);
-
-        if (nArr < 0) {
-            logger.warn("updateBenefitPriorityByArr failed..");
-            throw new ValidationHandler(EnumRC.BAD_REQUEST.getMessage());
-        }
-
-        CustomeResponse baseResponseDto = new CustomeResponse(EnumRC.SUCCESS.getRESPONSE_CODE(),EnumRC.SUCCESS.getMessage(),null);
-        return baseResponseDto;
-    }
+//    public ResponseEntity<CustomeResponse> listReAttrForPrice() {
+//        List<ReAttrListDto> list = reAttrRepository.findReAttrList();
+//
+//        return ResponseEntity.status(HttpStatus.OK)
+//                .body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, list));
+//    }
+//
+//    public ResponseEntity<CustomeResponse> listReAttrMapping(Character reAttrType, String reAttrName, Integer spId) {
+//        var data = reAttrRepository.qryReAttrByReAttrType(reAttrType, reAttrName, spId)
+//                .stream()
+//                .map(reAttrMapper::toDto)
+//                .toList();
+//
+//        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
+//    }
 
     @Transactional
     public ResponseEntity<CustomeResponse> deletePrice(Integer priceId, Integer priceVerId, Character reType) {
@@ -293,6 +231,84 @@ public class PriceServices {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
+    }
+
+
+    @Transactional
+    public CustomeResponse modifyPricePriority(ModPricePriorityRequest modPricePriorityRequest) {
+        Long priceId = modPricePriorityRequest.getPriceId();
+        Integer oldPriority = modPricePriorityRequest.getOldPriority();
+        Integer newPriority = modPricePriorityRequest.getNewPriority();
+        Integer priceVerId = modPricePriorityRequest.getPriceVerId();
+
+        if (oldPriority.equals(newPriority)) {
+            throw new ValidationHandler(EnumRC.BAD_REQUEST.getMessage());
+        }
+
+        int beginPriority, endPriority, addNum;
+
+        if (oldPriority < newPriority) {
+            beginPriority = oldPriority + 1;
+            endPriority = newPriority;
+            addNum = -1;
+        } else {
+            beginPriority = newPriority;
+            endPriority = oldPriority - 1;
+            addNum = 1;
+        }
+
+        int nArr = priceRepository.updatePricePriorityByArr(addNum,beginPriority, endPriority, priceVerId);
+        int n = priceRepository.updatePricePriority(priceId, newPriority);
+
+        Price price = priceRepository.findById(priceId).orElseThrow(() -> new ValidationHandler(EnumRC.NOT_FOUND.getMessage()));
+        price.setPriority(newPriority);
+        priceRepository.save(price);
+
+        if (nArr < 0 && n != 1) {
+            throw new ValidationHandler(EnumRC.BAD_REQUEST.getMessage());
+        }
+
+        CustomeResponse baseResponseDto = new CustomeResponse(EnumRC.SUCCESS.getRESPONSE_CODE(),EnumRC.SUCCESS.getMessage(),null);
+
+        return baseResponseDto;
+    }
+
+    @Transactional
+    public CustomeResponse modifyBenefitPriority(ModPricePriorityRequest modPricePriorityRequest) {
+        Long priceId = modPricePriorityRequest.getPriceId();
+        Integer oldPriority = modPricePriorityRequest.getOldPriority();
+        Integer newPriority = modPricePriorityRequest.getNewPriority();
+        Integer priceVerId = modPricePriorityRequest.getPriceVerId();
+
+        if (oldPriority.equals(newPriority)) {
+            throw new ValidationHandler(EnumRC.BAD_REQUEST.getMessage());
+        }
+
+        int beginPriority, endPriority, addNum;
+
+        if (oldPriority < newPriority) {
+            beginPriority = oldPriority + 1;
+            endPriority = newPriority;
+            addNum = -1;
+        } else {
+            beginPriority = newPriority;
+            endPriority = oldPriority - 1;
+            addNum = 1;
+        }
+
+        int nArr = eventBenefitRepository.updateBenefitPriorityByArr(addNum,beginPriority, endPriority, priceVerId);
+        //int n = priceRepository.updatePricePriority(priceId, newPriority);
+
+        EventBenefit eventBenefit = eventBenefitRepository.findById(priceId.intValue()).orElseThrow(() -> new ValidationHandler("EventBenefit not found"));
+        eventBenefit.setPriority(newPriority);
+
+        if (nArr < 0) {
+            logger.warn("updateBenefitPriorityByArr failed..");
+            throw new ValidationHandler(EnumRC.BAD_REQUEST.getMessage());
+        }
+
+        CustomeResponse baseResponseDto = new CustomeResponse(EnumRC.SUCCESS.getRESPONSE_CODE(),EnumRC.SUCCESS.getMessage(),null);
+        return baseResponseDto;
     }
 
 }
