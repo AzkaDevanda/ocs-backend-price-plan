@@ -1,9 +1,11 @@
 package com.ocs.portal.controller.price;
 
-import com.ocs.portal.pricever.PricePlanVerService;
+
 import com.ocs.portal.dto.request.UpdatePriceVerDto;
 import com.ocs.portal.dto.response.BaseResponseDto;
 import com.ocs.portal.dto.response.CustomeResponse;
+import com.ocs.portal.pricever.PricePlanVerService;
+import com.ocs.portal.rateplan.PriceServices;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,17 +24,6 @@ public class PriceVerController {
     @Autowired
     private PriceServices priceService;
 
-
-    @GetMapping({"/{ratePlanId}"})
-    public ResponseEntity<BaseResponseDto> getPricePlanVer(@PathVariable Integer ratePlanId) {
-//        log.info("::Request createPricePlan :: {} ",new Gson().toJson(pricePlanRequestDto));
-        return ResponseEntity.ok(pricePlanVerService.listPriceVerByRatePlan(ratePlanId));
-    }
-
-    @PutMapping("/update/{priceVerId}")
-    public ResponseEntity<CustomeResponse> updatePricePlanVer(@Schema(description = "ex : priceVerId (11516)") @PathVariable Integer priceVerId, @RequestBody UpdatePriceVerDto dto) {
-        return pricePlanVerService.updatePriceVer(priceVerId, dto);
-    }
 
     @GetMapping("re-attr/list")
     public ResponseEntity<CustomeResponse> listReAttr( @Parameter(description = """
@@ -55,6 +46,18 @@ public class PriceVerController {
     @DeleteMapping("/delete/acm/{priceId}/{priceVerId}")
     public ResponseEntity<CustomeResponse> deletePriceVerAcm(@PathVariable Integer priceId, @PathVariable Integer priceVerId){
         return priceService.deleteAcm(priceId,priceVerId);
+    }
+
+
+    @GetMapping({"/{ratePlanId}"})
+    public ResponseEntity<BaseResponseDto> getPricePlanVer(@PathVariable Integer ratePlanId) {
+//        log.info("::Request createPricePlan :: {} ",new Gson().toJson(pricePlanRequestDto));
+        return ResponseEntity.ok(pricePlanVerService.listPriceVerByRatePlan(ratePlanId));
+    }
+
+    @PutMapping("/update/{priceVerId}")
+    public ResponseEntity<CustomeResponse> updatePricePlanVer(@Schema(description = "ex : priceVerId (11516)") @PathVariable Integer priceVerId, @RequestBody UpdatePriceVerDto dto) {
+        return pricePlanVerService.updatePriceVer(priceVerId, dto);
     }
 
 
