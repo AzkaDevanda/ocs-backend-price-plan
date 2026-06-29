@@ -1,4 +1,4 @@
-package com.ocs.portal.price;
+package com.ocs.portal.pricever;
 
 
 import com.ocs.portal.common.MessageService;
