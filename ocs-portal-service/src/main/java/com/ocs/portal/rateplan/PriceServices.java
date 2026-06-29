@@ -68,53 +68,6 @@ public class PriceServices {
     Logger logger = LoggerFactory.getLogger(PriceServices.class);
 
 
-    @Transactional
-    public ResponseEntity<CustomeResponse> deletePrice(Integer priceId, Integer priceVerId, Character reType) {
-
-        List<RefValue> refValues = refValueRepository.findByPriceId(Long.valueOf(priceId));
-
-        if (refValues.isEmpty()) {
-            throw new ValidationHandler(EnumRC.NOT_FOUND.getMessage());
-        }
-
-        for (RefValue refValue : refValues) {
-            refValue.setState('X');
-        }
-
-        refValueRepository.saveAll(refValues);
-
-        if (reType.equals('1')) {
-            upRepository.deleteUpRuleByUpId(priceId);
-            upRepository.deleteRankUpByUpId(priceId);
-            upRepository.deleteAcmUpByUpId(priceId);
-            upRepository.deleteAcmCalcByUpId(priceId);
-            upRepository.deleteTimeSpanUpByUpId(priceId);
-            upRepository.deleteUpByUpId(priceId);
-        } else if (reType.equals('9')) {
-            rpRepository.deleteById(priceId);
-            priceRepository.deleteById(Long.valueOf(priceId));
-        } else if (reType.equals('3')) {
-            Optional<Op> delOp = opRepository.findById(priceId);
-            if (delOp.isPresent()) {
-                opRepository.deleteById(priceId);
-            }
-        }
-        upRepository.deleteUpByUpId(priceId);
-        priceTemplateMappingReRepository.deleteByPriceId(priceId);
-        priceCatalogElementRepository.deletePriceCatalogElementByPriceId(priceId);
-        priceTaxRepository.deletePriceTaxByPriceId(priceId);
-        priceRepository.deleteById(Long.valueOf(priceId));
-
-        if (priceVerId != null) {
-            int priceCount = priceRepository.selectPriceCountByPriceVer(priceVerId);
-            if (priceCount == 0) {
-                priceVerRepository.deleteById(priceVerId);
-            }
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
-    }
-
     // TODO : TABLE RefValue DATANYA BERBEDA
 //    private void clearRefValueOfPrice(Long priceId, List<Long> retainedRefValIdList) {
 //        List<Long> refValueIdKeep = new ArrayList<>();
@@ -125,7 +78,6 @@ public class PriceServices {
 //            }
 //        }
 //    }
-
     @Transactional
     public ResponseEntity<CustomeResponse> deleteAcm(Integer priceId, Integer priceVerId) {
 
@@ -206,6 +158,62 @@ public class PriceServices {
         return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
 
     }
+
+
+
+
+
+
+
+    @Transactional
+    public ResponseEntity<CustomeResponse> deletePrice(Integer priceId, Integer priceVerId, Character reType) {
+
+        List<RefValue> refValues = refValueRepository.findByPriceId(Long.valueOf(priceId));
+
+        if (refValues.isEmpty()) {
+            throw new ValidationHandler(EnumRC.NOT_FOUND.getMessage());
+        }
+        for (RefValue refValue : refValues) {
+            refValue.setState('X');
+        }
+        refValueRepository.saveAll(refValues);
+
+        if (reType.equals('1')) {
+            upRepository.deleteUpRuleByUpId(priceId);
+            upRepository.deleteRankUpByUpId(priceId);
+            upRepository.deleteAcmUpByUpId(priceId);
+            upRepository.deleteAcmCalcByUpId(priceId);
+            upRepository.deleteTimeSpanUpByUpId(priceId);
+            upRepository.deleteUpByUpId(priceId);
+        } else if (reType.equals('9')) {
+            rpRepository.deleteById(priceId);
+            priceRepository.deleteById(Long.valueOf(priceId));
+        } else if (reType.equals('3')) {
+            Optional<Op> delOp = opRepository.findById(priceId);
+            if (delOp.isPresent()) {
+                opRepository.deleteById(priceId);
+            }
+        }
+        upRepository.deleteUpByUpId(priceId);
+        priceTemplateMappingReRepository.deleteByPriceId(priceId);
+        priceCatalogElementRepository.deletePriceCatalogElementByPriceId(priceId);
+        priceTaxRepository.deletePriceTaxByPriceId(priceId);
+        priceRepository.deleteById(Long.valueOf(priceId));
+
+        if (priceVerId != null) {
+            int priceCount = priceRepository.selectPriceCountByPriceVer(priceVerId);
+            if (priceCount == 0) {
+                priceVerRepository.deleteById(priceVerId);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
+    }
+
+
+
+
+
+
 
 
     public ResponseEntity<CustomeResponse> getPriceRating(Integer ratePlanId, Integer mappingId, Integer priceVerId, Long priceId,
