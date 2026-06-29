@@ -6,6 +6,7 @@ import com.ocs.portal.dto.request.*;
 import com.ocs.portal.dto.response.priceVer.*;
 import com.ocs.portal.entity.*;
 import com.ocs.portal.mapper.pricePlan.price.*;
+import com.ocs.portal.mapper.re.ReAttrMapper;
 import com.ocs.portal.rateplan.RatePlanService;
 import com.ocs.portal.repository.*;
 import com.ocs.portal.dto.response.BaseResponseDto;
@@ -122,6 +123,8 @@ public class PricePlanVerService {
     private QryPriceVerMapper qryPriceVerMapper;
     @Autowired
     private OpRepository opRepository;
+    @Autowired
+    private ReAttrMapper reAttrMapper;
 
     public ResponseEntity<CustomeResponse> validatePriceVersionExpDate(Integer ratePlanId) {
 
@@ -346,6 +349,15 @@ public class PricePlanVerService {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, list));
+    }
+
+    public ResponseEntity<CustomeResponse> listReAttrMapping(Character reAttrType, String reAttrName, Integer spId) {
+        var data = reAttrRepository.qryReAttrByReAttrType(reAttrType, reAttrName, spId)
+                .stream()
+                .map(reAttrMapper::toDto)
+                .toList();
+
+        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
     }
 
     public ResponseEntity<CustomeResponse> updatePriceVer(Integer priceVerId, UpdatePriceVerDto dto) {

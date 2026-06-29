@@ -5,6 +5,7 @@ import com.ocs.portal.pricever.PricePlanVerService;
 import com.ocs.portal.dto.request.UpdatePriceVerDto;
 import com.ocs.portal.dto.response.BaseResponseDto;
 import com.ocs.portal.dto.response.CustomeResponse;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,15 @@ public class PriceVerController {
     public ResponseEntity<CustomeResponse> updatePricePlanVer(@Schema(description = "ex : priceVerId (11516)") @PathVariable Integer priceVerId, @RequestBody UpdatePriceVerDto dto) {
         return pricePlanVerService.updatePriceVer(priceVerId, dto);
     }
+
+    @GetMapping("re-attr/list")
+    public ResponseEntity<CustomeResponse> listReAttr( @Parameter(description = """
+            - For Usage Price ReType = 1\n
+            - For Reurring Price ReType = 2\n
+            - For Subscription Price Type = 3""") @RequestParam(required = false) Character reType, @RequestParam(required = false) String reAttrName, @RequestParam(required = false) Integer spId) {
+        return pricePlanVerService.listReAttrMapping(reType,reAttrName, spId);
+    }
+
     @GetMapping(value = "reattr-price/list")
     public ResponseEntity<CustomeResponse> listReAttrForPrice() {
         return pricePlanVerService.listReAttrForPrice();
