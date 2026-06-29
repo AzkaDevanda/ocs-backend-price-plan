@@ -114,6 +114,191 @@ public class RatePlanService {
 
 
 
+
+    @Transactional(rollbackFor =  Exception.class)
+    public ResponseEntity<CustomeResponse> modRePricePlan(ModRePricePlanDto modRePricePlanDto){
+        Optional<ModRePricePlanProjection> modRePricePlanProjection = rePricePlanRepository.findByReIdAndOfferVerId(modRePricePlanDto.getReId(), modRePricePlanDto.getOfferVerId());
+        if(!modRePricePlanProjection.isEmpty() && modRePricePlanProjection != null){
+            String oldRuleScript = modRePricePlanDto.getRuleScript();
+            if(oldRuleScript != null){
+                String refValIdPatter = "(?<=r.event.GetValueByRefID\\()\\d+(?=\\))";
+                String[] refValIdStrArr = StringUtil.findAll(oldRuleScript, refValIdPatter);
+                if(refValIdStrArr != null && refValIdStrArr.length > 0){
+                    Long refValueId = null;
+                    for (String refValueIdStr : refValIdStrArr) {
+                        refValueId = Long.valueOf(refValueIdStr);
+                        delRefValue(refValueId);
+                    }
+                }
+            }
+        }
+
+        if(modRePricePlanProjection == null){
+            RePricePlan rePricePlan = reservationRuleMapper.toEntityRePricePlan(modRePricePlanDto);
+            rePricePlanRepository.save(rePricePlan);
+        } else{
+            RePricePlan rePricePlan = rePricePlanRepository.findById_ReIdAndId_OfferVerId(modRePricePlanDto.getReId(), modRePricePlanDto.getOfferVerId()).orElseThrow(() -> new ValidationHandler("RE_PRICE_PLAN not found"));;
+            reservationRuleMapper.updateEntityRePricePlan(modRePricePlanDto, rePricePlan);
+            rePricePlanRepository.save(rePricePlan);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
+    }
+
+
+    @Transactional
+    public BaseResponseDto addRatePlan(RatePlanDto ratePlanDto) {
+        BaseResponseDto baseResponseDto = new BaseResponseDto();
+
+        Integer offerVerId = ratePlanDto.getOfferVerId();
+        Integer reId = ratePlanDto.getReId();
+        // Validasi jumlah maksimum rate plan per price plan version
+        long maxCount = 10L; // tergantung konfigurasi database
+        if (reId != null && offerVerId != null) {
+            Long count = ratePlanRepository.countByReIdAndOfferVerId(reId, offerVerId);
+            if (count != null && count >= maxCount) {
+                throw new ValidationHandler(messageService.getMessage("S-PRD-51101"));
+            }
+        }
+
+        try {
+//
+            // INSERT RATE_PLAN
+            // builder set entity
+            RatePlan ratePlan = RatePlan.builder()
+                    .reId(ratePlanDto.getReId())
+                    .offerVerId(ratePlanDto.getOfferVerId())
+                    .ratePlanName(ratePlanDto.getRatePlanName())
+                    .ratePlanCode(ratePlanDto.getRatePlanCode())
+                    .ratePlanType(ratePlanDto.getRatePlanType())
+                    .remarks(ratePlanDto.getRemarks())
+                    .templateFlag(ratePlanDto.getTemplateFlag() != null ? (char) ("Y".equals(ratePlanDto.getTemplateFlag()) ? 'Y' : 'N') : 'N')
+                    .spId(ratePlanDto.getSpId()).build();
+            ratePlanRepository.save(ratePlan);
+            logger.info("::: RATE PLAN successfully saved into database ::");
+            Integer ratePlanId = ratePlan.getId();
+
+//
+
+            // INSERT RATE_PLAN_MAPPING
+            RatePlanMappingId ratePlanMappingId = new RatePlanMappingId();
+            ratePlanMappingId.setRatePlanId(ratePlanId);
+            ratePlanMappingId.setOfferVerId(ratePlan.getOfferVerId());
+            ratePlanMappingId.setReId(ratePlan.getReId());
+            RatePlanMapping ratePlanMapping = new RatePlanMapping();
+            ratePlanMapping.setId(ratePlanMappingId);
+            ratePlanMapping.setSpId(ratePlanDto.getSpId());
+
+            // PRIORITY
+            Integer priority = ratePlanMappingRepository.getMaxPriority();
+            ratePlanMapping.setPriority(priority != null ? priority + 1 : 1);
+            ratePlanMappingRepository.save(ratePlanMapping);
+            logger.info("::: RATE PLAN MAPPING successfully saved into database ::");
+
+            baseResponseDto.setCode(EnumRC.SUCCESS.getRESPONSE_CODE().toString());
+            baseResponseDto.setMessage(EnumRC.SUCCESS.getMessage());
+            baseResponseDto.setData(ratePlanDto);
+        } catch (Exception e) {
+            log.error("Error saat menambahkan rate plan: ", e);
+//            throw new ValidationHandler(EnumRC.CREATE_FAILED.getMessage());
+        }
+        return baseResponseDto;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity<CustomeResponse> updateRatePlan(Integer ratePlanId, UpdateRatePlanDto dto) {
+
+        RatePlan ratePlan = ratePlanRepository.findById(ratePlanId).orElseThrow(() -> new ValidationHandler(EnumRC.NOT_FOUND.getMessage()));
+
+        ratePlan.setRatePlanName(dto.getRatePlanName());
+        ratePlan.setRatePlanCode(dto.getRatePlanCode());
+        ratePlan.setRemarks(dto.getRemarks());
+        ratePlanRepository.save(ratePlan);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, ratePlan));
+
+    }
+
+    @Transactional
+    public ResponseEntity<CustomeResponse> updatePriorityRatePlan(Integer ratePlanId, Integer newPriority) {
+
+        RatePlanMapping mapping = ratePlanMappingRepository.findByRatePlanId(ratePlanId);
+
+        if (mapping == null) {
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(404, HttpStatusConstant.NOT_FOUND_MESSAGE, mapping));
+        }
+
+        Integer oldPriority = mapping.getPriority();
+
+        if (oldPriority.equals(newPriority)) {
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, messageService.getMessage("S-RES-70004"), null));
+        }
+
+        if (newPriority < oldPriority) {
+            // Geser item lain ke atas
+            ratePlanMappingRepository.shiftPriorityUp(newPriority, oldPriority);
+        } else {
+            // Geser item lain ke bawah
+            ratePlanMappingRepository.shiftPriorityDown(oldPriority, newPriority);
+        }
+
+        // Update priority item utama
+        mapping.setPriority(newPriority);
+        ratePlanMappingRepository.save(mapping);
+        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
+    }
+
+    public BaseResponseDto getRatePlanById(Integer ratePlanId) {
+        BaseResponseDto baseResponseDto = new BaseResponseDto();
+        RatePlan ratePlan = ratePlanRepository.findById(ratePlanId).orElseThrow(() -> new ValidationHandler(EnumRC.NOT_FOUND.getMessage()));
+        baseResponseDto.setCode(EnumRC.SUCCESS.getRESPONSE_CODE().toString());
+        baseResponseDto.setMessage(EnumRC.SUCCESS.getMessage());
+        baseResponseDto.setData(ratePlan);
+        return baseResponseDto;
+    }
+
+    public ResponseEntity<CustomeResponse> getRatePlanByOfferVerId(Integer offerVerId, Integer reId, Integer spId, String keyWords) {
+        BaseResponseDto baseResponseDto = new BaseResponseDto();
+
+        var data = ratePlanRepository.findRatePlanByOfferId(offerVerId, reId, spId, keyWords)
+                .stream()
+                .map(qryRatePlanMapper::toDto)
+                .toList();
+
+        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
+    }
+
+
+    @Transactional
+    public ResponseEntity<CustomeResponse> deleteRatePlan(Integer ratePlanId) {
+        BaseResponseDto baseResponseDto = new BaseResponseDto();
+
+        RatePlanMapping ratePlanMapping = ratePlanMappingRepository.findByRatePlanId(ratePlanId);
+
+        ratePlanMappingRepository.callRatePlanMappingStoreProcedure(ratePlanMapping.getId().getRatePlanId(), ratePlanMapping.getId().getReId(), ratePlanMapping.getId().getOfferVerId());
+        ratePlanRepository.findById(ratePlanId).ifPresent(ratePlan -> ratePlanRepository.callDeleteRatePlanProcedure(ratePlan.getId()));
+
+        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
+    }
+
+    public SimpleParamDefineDto qrySimpleParamDefineById(Integer simpleParamId){
+        return simpleParamDefineRepository.findById(simpleParamId).filter(entity -> !"X".equals(entity.getState())).map(reservationRuleMapper::toDto).orElse(null);
+    }
+
+    public TableParamDefineDto qryTableParamDefine(Long tableParamId){
+        return tableParamDefineRepository.findById(tableParamId).filter(entity -> !"X".equals(entity.getState())).map(reservationRuleMapper::toDto).orElse(null);
+    }
+
+    public RefValueDto qryRefValueDto (Long refValueId, Boolean ignoreState){
+        RefValueDto refValueDto = refValueRepository.qryRefValue(refValueId);
+
+        if(refValueDto != null && (ignoreState.booleanValue() || refValueDto.getState().equals("A"))){
+            return refValueDto;
+        }
+        return null;
+    }
+
+
+
     private RefValueFormulaDto buildRefValueFormula (RefValueDto refValueDto){
         if(refValueDto == null || !"4".equals(refValueDto.getRefValueType()) || StringUtil.isEmpty(refValueDto.getValueString())){
             return null;
@@ -368,190 +553,6 @@ public class RatePlanService {
             cascadeDelRefValueInFormula(refValueFormulaDto);
         }
         delRefValueDto(refValueId);
-    }
-
-
-
-    @Transactional(rollbackFor =  Exception.class)
-    public ResponseEntity<CustomeResponse> modRePricePlan(ModRePricePlanDto modRePricePlanDto){
-        Optional<ModRePricePlanProjection> modRePricePlanProjection = rePricePlanRepository.findByReIdAndOfferVerId(modRePricePlanDto.getReId(), modRePricePlanDto.getOfferVerId());
-        if(!modRePricePlanProjection.isEmpty() && modRePricePlanProjection != null){
-            String oldRuleScript = modRePricePlanDto.getRuleScript();
-            if(oldRuleScript != null){
-                String refValIdPatter = "(?<=r.event.GetValueByRefID\\()\\d+(?=\\))";
-                String[] refValIdStrArr = StringUtil.findAll(oldRuleScript, refValIdPatter);
-                if(refValIdStrArr != null && refValIdStrArr.length > 0){
-                    Long refValueId = null;
-                    for (String refValueIdStr : refValIdStrArr) {
-                        refValueId = Long.valueOf(refValueIdStr);
-                        delRefValue(refValueId);
-                    }
-                }
-            }
-        }
-
-        if(modRePricePlanProjection == null){
-            RePricePlan rePricePlan = reservationRuleMapper.toEntityRePricePlan(modRePricePlanDto);
-            rePricePlanRepository.save(rePricePlan);
-        } else{
-            RePricePlan rePricePlan = rePricePlanRepository.findById_ReIdAndId_OfferVerId(modRePricePlanDto.getReId(), modRePricePlanDto.getOfferVerId()).orElseThrow(() -> new ValidationHandler("RE_PRICE_PLAN not found"));;
-            reservationRuleMapper.updateEntityRePricePlan(modRePricePlanDto, rePricePlan);
-            rePricePlanRepository.save(rePricePlan);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
-    }
-
-
-    @Transactional
-    public BaseResponseDto addRatePlan(RatePlanDto ratePlanDto) {
-        BaseResponseDto baseResponseDto = new BaseResponseDto();
-
-        Integer offerVerId = ratePlanDto.getOfferVerId();
-        Integer reId = ratePlanDto.getReId();
-        // Validasi jumlah maksimum rate plan per price plan version
-        long maxCount = 10L; // tergantung konfigurasi database
-        if (reId != null && offerVerId != null) {
-            Long count = ratePlanRepository.countByReIdAndOfferVerId(reId, offerVerId);
-            if (count != null && count >= maxCount) {
-                throw new ValidationHandler(messageService.getMessage("S-PRD-51101"));
-            }
-        }
-
-        try {
-//
-            // INSERT RATE_PLAN
-            // builder set entity
-            RatePlan ratePlan = RatePlan.builder()
-                    .reId(ratePlanDto.getReId())
-                    .offerVerId(ratePlanDto.getOfferVerId())
-                    .ratePlanName(ratePlanDto.getRatePlanName())
-                    .ratePlanCode(ratePlanDto.getRatePlanCode())
-                    .ratePlanType(ratePlanDto.getRatePlanType())
-                    .remarks(ratePlanDto.getRemarks())
-                    .templateFlag(ratePlanDto.getTemplateFlag() != null ? (char) ("Y".equals(ratePlanDto.getTemplateFlag()) ? 'Y' : 'N') : 'N')
-                    .spId(ratePlanDto.getSpId()).build();
-            ratePlanRepository.save(ratePlan);
-            logger.info("::: RATE PLAN successfully saved into database ::");
-            Integer ratePlanId = ratePlan.getId();
-
-//
-
-            // INSERT RATE_PLAN_MAPPING
-            RatePlanMappingId ratePlanMappingId = new RatePlanMappingId();
-            ratePlanMappingId.setRatePlanId(ratePlanId);
-            ratePlanMappingId.setOfferVerId(ratePlan.getOfferVerId());
-            ratePlanMappingId.setReId(ratePlan.getReId());
-            RatePlanMapping ratePlanMapping = new RatePlanMapping();
-            ratePlanMapping.setId(ratePlanMappingId);
-            ratePlanMapping.setSpId(ratePlanDto.getSpId());
-
-            // PRIORITY
-            Integer priority = ratePlanMappingRepository.getMaxPriority();
-            ratePlanMapping.setPriority(priority != null ? priority + 1 : 1);
-            ratePlanMappingRepository.save(ratePlanMapping);
-            logger.info("::: RATE PLAN MAPPING successfully saved into database ::");
-
-            baseResponseDto.setCode(EnumRC.SUCCESS.getRESPONSE_CODE().toString());
-            baseResponseDto.setMessage(EnumRC.SUCCESS.getMessage());
-            baseResponseDto.setData(ratePlanDto);
-        } catch (Exception e) {
-            log.error("Error saat menambahkan rate plan: ", e);
-//            throw new ValidationHandler(EnumRC.CREATE_FAILED.getMessage());
-        }
-        return baseResponseDto;
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public ResponseEntity<CustomeResponse> updateRatePlan(Integer ratePlanId, UpdateRatePlanDto dto) {
-
-        RatePlan ratePlan = ratePlanRepository.findById(ratePlanId).orElseThrow(() -> new ValidationHandler(EnumRC.NOT_FOUND.getMessage()));
-
-        ratePlan.setRatePlanName(dto.getRatePlanName());
-        ratePlan.setRatePlanCode(dto.getRatePlanCode());
-        ratePlan.setRemarks(dto.getRemarks());
-        ratePlanRepository.save(ratePlan);
-
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, ratePlan));
-
-    }
-
-    @Transactional
-    public ResponseEntity<CustomeResponse> updatePriorityRatePlan(Integer ratePlanId, Integer newPriority) {
-
-        RatePlanMapping mapping = ratePlanMappingRepository.findByRatePlanId(ratePlanId);
-
-        if (mapping == null) {
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(404, HttpStatusConstant.NOT_FOUND_MESSAGE, mapping));
-        }
-
-        Integer oldPriority = mapping.getPriority();
-
-        if (oldPriority.equals(newPriority)) {
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, messageService.getMessage("S-RES-70004"), null));
-        }
-
-        if (newPriority < oldPriority) {
-            // Geser item lain ke atas
-            ratePlanMappingRepository.shiftPriorityUp(newPriority, oldPriority);
-        } else {
-            // Geser item lain ke bawah
-            ratePlanMappingRepository.shiftPriorityDown(oldPriority, newPriority);
-        }
-
-        // Update priority item utama
-        mapping.setPriority(newPriority);
-        ratePlanMappingRepository.save(mapping);
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
-    }
-
-    public BaseResponseDto getRatePlanById(Integer ratePlanId) {
-        BaseResponseDto baseResponseDto = new BaseResponseDto();
-        RatePlan ratePlan = ratePlanRepository.findById(ratePlanId).orElseThrow(() -> new ValidationHandler(EnumRC.NOT_FOUND.getMessage()));
-        baseResponseDto.setCode(EnumRC.SUCCESS.getRESPONSE_CODE().toString());
-        baseResponseDto.setMessage(EnumRC.SUCCESS.getMessage());
-        baseResponseDto.setData(ratePlan);
-        return baseResponseDto;
-    }
-
-    public ResponseEntity<CustomeResponse> getRatePlanByOfferVerId(Integer offerVerId, Integer reId, Integer spId, String keyWords) {
-        BaseResponseDto baseResponseDto = new BaseResponseDto();
-
-        var data = ratePlanRepository.findRatePlanByOfferId(offerVerId, reId, spId, keyWords)
-                .stream()
-                .map(qryRatePlanMapper::toDto)
-                .toList();
-
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, data));
-    }
-
-
-    @Transactional
-    public ResponseEntity<CustomeResponse> deleteRatePlan(Integer ratePlanId) {
-        BaseResponseDto baseResponseDto = new BaseResponseDto();
-
-        RatePlanMapping ratePlanMapping = ratePlanMappingRepository.findByRatePlanId(ratePlanId);
-
-        ratePlanMappingRepository.callRatePlanMappingStoreProcedure(ratePlanMapping.getId().getRatePlanId(), ratePlanMapping.getId().getReId(), ratePlanMapping.getId().getOfferVerId());
-        ratePlanRepository.findById(ratePlanId).ifPresent(ratePlan -> ratePlanRepository.callDeleteRatePlanProcedure(ratePlan.getId()));
-
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomeResponse(200, HttpStatusConstant.SUCCESS_MESSAGE, null));
-    }
-
-    public SimpleParamDefineDto qrySimpleParamDefineById(Integer simpleParamId){
-        return simpleParamDefineRepository.findById(simpleParamId).filter(entity -> !"X".equals(entity.getState())).map(reservationRuleMapper::toDto).orElse(null);
-    }
-
-    public TableParamDefineDto qryTableParamDefine(Long tableParamId){
-        return tableParamDefineRepository.findById(tableParamId).filter(entity -> !"X".equals(entity.getState())).map(reservationRuleMapper::toDto).orElse(null);
-    }
-
-    public RefValueDto qryRefValueDto (Long refValueId, Boolean ignoreState){
-        RefValueDto refValueDto = refValueRepository.qryRefValue(refValueId);
-
-        if(refValueDto != null && (ignoreState.booleanValue() || refValueDto.getState().equals("A"))){
-            return refValueDto;
-        }
-        return null;
     }
 
 }
